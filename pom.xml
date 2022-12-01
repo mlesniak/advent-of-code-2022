@@ -17,7 +17,7 @@
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
 
         <native.maven.plugin.version>0.9.14</native.maven.plugin.version>
-        <mainClass>com.mlesniak.changeme.MainKt</mainClass>
+        <mainClass>com.mlesniak.changeme.IOKt</mainClass>
     </properties>
 
     <repositories>
