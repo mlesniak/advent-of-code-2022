@@ -43,6 +43,44 @@ class Day2Test {
         }
     }
 
+    // Pragmatic solution w/o enums.
+    private fun score2(strategy: List<String>): Int {
+        val opp = strategy[0]
+        val you = strategy[1]
+
+        return when (opp) {
+            // A Rock, B Paper, C Scissor
+            "A" -> {
+                when (you) {
+                    // X loose, Y draw, Z win
+                    // Rock / 1, Paper / 2, Scissor / 3
+                    "X" -> 0 + 3
+                    "Y" -> 3 + 1
+                    "Z" -> 6 + 2
+                    else -> throw IllegalArgumentException("you=$you")
+                }
+            }
+            "B" -> {
+                when (you) {
+                    "X" -> 0 + 1
+                    "Y" -> 3 + 2
+                    "Z" -> 6 + 3
+                    else -> throw IllegalArgumentException("you=$you")
+                }
+            }
+            "C" -> {
+                when (you) {
+                    "X" -> 0 + 2
+                    "Y" -> 3 + 3
+                    "Z" -> 6 + 1
+                    else -> throw IllegalArgumentException("you=$you")
+                }
+            }
+            else -> throw IllegalArgumentException("opp=$opp")
+        }
+    }
+
+
     @Test
     fun part1() {
         val lines = Files
@@ -54,5 +92,10 @@ class Day2Test {
 
     @Test
     fun part2() {
+        val lines = Files
+            .readAllLines(Path.of("2.txt"))
+            .map { it.split(" ") }
+            .sumOf { score2(it) }
+        println(lines)
     }
 }
