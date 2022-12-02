@@ -48,7 +48,7 @@ class Day2Test {
         val lines = Files
             .readAllLines(Path.of("2.txt"))
             .map { it.split(" ") }
-            .map { score(it) }
+            .sumOf { score(it) }
         println(lines)
     }
 
