@@ -40,5 +40,37 @@ class Day3Test {
 
     @Test
     fun part2() {
+        val res = Files
+            .readAllLines(Path.of("3.txt"))
+            .groupBy(3)
+            .map { findCommon(it) }
+            .sumOf { toCode(it) }
+        println(res)
+    }
+
+    private fun findCommon(list: List<String>): Char {
+        val sets = list.map { it.toSet()}
+        return sets[0].intersect(sets[1]).intersect(sets[2]).find { true }!!
+    }
+
+    private fun <T> List<T>.groupBy(n: Int): List<List<T>> {
+        val res = mutableListOf<List<T>>()
+
+        var k = 0
+        var tmp = mutableListOf<T>()
+        for (e in this) {
+            tmp += e
+            k++
+            if (k == n) {
+                res += tmp
+                tmp = mutableListOf()
+                k = 0
+            }
+        }
+        if (tmp.isNotEmpty()) {
+            res += tmp
+        }
+
+        return res
     }
 }
