@@ -22,7 +22,6 @@ class Day3Test {
     }
 
     private fun toCode(c: Char): Int {
-        println(c)
         if (c in 'a'..'z') {
             return c.code - 'a'.code + 1
         }
