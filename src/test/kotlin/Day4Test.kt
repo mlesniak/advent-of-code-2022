@@ -53,7 +53,7 @@ class Day4Test {
                     start..end
                 }
             }
-            .filter { partial(it) }
+            .count { partial(it) }
         println(lines)
     }
 
