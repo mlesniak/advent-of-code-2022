@@ -6,7 +6,6 @@ import java.util.Stack
 class Day5Test {
     @Test
     fun part1() {
-
         val lines = readLineGroups("5.txt")
         val stackDesc = lines[0]
             .dropLast(1)
@@ -51,5 +50,48 @@ class Day5Test {
 
     @Test
     fun part2() {
+        val lines = readLineGroups("5.txt")
+        val stackDesc = lines[0]
+            .dropLast(1)
+            .map {
+                val sb = StringBuilder()
+                for (i in 1 until it.length step 4) {
+                    sb.append(it[i])
+                }
+                sb.toString()
+            }
+        val stacks = Array<Stack<Char>>(stackDesc.last().length) { Stack() }
+        for (line in stackDesc) {
+            for (c in line.indices) {
+                if (line[c] == ' ') {
+                    continue
+                }
+                stacks[c] += line[c]
+            }
+        }
+        stacks.map { it.reverse() }
+
+        parseCommands9001(lines[1], stacks)
+
+        val res = stacks.map {
+            it.pop()
+        }.joinToString("")
+        println(res)
+    }
+
+    private fun parseCommands9001(commands: MutableList<String>, stacks: Array<Stack<Char>>) {
+        commands.forEach { command ->
+            val cs = command.split(" ").slice(listOf(1, 3, 5)).map { it.toInt() }
+            val num = cs[0]
+            val from = cs[1]
+            val to = cs[2]
+
+            val ls = mutableListOf<Char>()
+            repeat(num) {
+                ls += stacks[from-1].pop()
+            }
+            ls.reverse()
+            ls.forEach { stacks[to-1] += it }
+        }
     }
 }
