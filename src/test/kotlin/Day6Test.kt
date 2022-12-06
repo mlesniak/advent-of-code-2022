@@ -10,8 +10,8 @@ class Day6Test {
         val input = Files.readString(Path.of("6.txt"))
         val markerLength = 4
         var res: String = ""
-        for (i in 0..(input.length - 4)) {
-            res = input.substring(i, i + 4)
+        for (i in 0..(input.length - markerLength)) {
+            res = input.substring(i, i + markerLength)
             if (unique(markerLength, res)) {
                 println(i + markerLength)
                 break
@@ -25,5 +25,15 @@ class Day6Test {
 
     @Test
     fun part2() {
+        val input = Files.readString(Path.of("6.txt"))
+        val markerLength = 14
+        var res: String = ""
+        for (i in 0..(input.length - markerLength)) {
+            res = input.substring(i, i + markerLength)
+            if (unique(markerLength, res)) {
+                println(i + markerLength)
+                break
+            }
+        }
     }
 }
