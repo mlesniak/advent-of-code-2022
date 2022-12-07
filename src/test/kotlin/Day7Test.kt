@@ -21,6 +21,21 @@ class Day7Test {
         val lines = Files.readAllLines(Path.of("7.txt"))
         var root = DirectoryNode("/")
 
+        parseLines(root, lines)
+
+        // A lot of optimization potential to write more beautiful code.
+        // No time this evening...
+        computeSums(root)
+        val directories = mutableListOf<DirectoryNode>()
+        filterDirs(directories, root)
+        val res = directories.sumOf { it.size }
+        println(res)
+    }
+
+    private fun parseLines(
+        root: DirectoryNode,
+        lines: MutableList<String>
+    ) {
         var i = 0
         var cur = root
         while (i < lines.size) {
@@ -60,14 +75,6 @@ class Day7Test {
             }
             i++
         }
-
-        // A lot of optimization potential to write more beautiful code.
-        // No time this evening...
-        computeSums(root)
-        val directories = mutableListOf<DirectoryNode>()
-        filterDirs(directories, root)
-        val res = directories.sumOf { it.size }
-        println(res)
     }
 
     private fun filterDirs(directories: MutableList<DirectoryNode>, root: DirectoryNode) {
@@ -103,5 +110,39 @@ class Day7Test {
 
     @Test
     fun part2() {
+        val lines = Files.readAllLines(Path.of("7.txt"))
+        var root = DirectoryNode("/")
+
+        parseLines(root, lines)
+
+        // A lot of optimization potential to write more beautiful code.
+        // No time this evening...
+        computeSums(root)
+        val directories = mutableListOf<DirectoryNode>()
+        collectDirs(directories, root)
+
+        directories.sortBy { it.size }
+        val currentSpace = 70000000 - root.size
+        val needed = 30_000_000 - currentSpace
+        directories.forEach { dir ->
+            // println("${dir.name} ${dir.size}")
+            if (dir.size > needed) {
+                println(dir.size)
+                return
+            }
+        }
+    }
+
+    private fun collectDirs(directories: MutableList<DirectoryNode>, root: DirectoryNode) {
+        // Ignore files.
+        if (root.contents.isEmpty()) {
+            return
+        }
+
+        directories += root
+
+        for (entry in root.contents.values) {
+            collectDirs(directories, entry)
+        }
     }
 }
