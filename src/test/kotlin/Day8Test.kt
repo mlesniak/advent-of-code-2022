@@ -12,12 +12,12 @@ class Day8Test {
             .map { it.map { c -> c.code - '0'.code  } }
 
         var visibleTrees = grid.size * 2 + (grid[0].size - 2) * 2
-        println("Visible on edge: $visibleTrees")
+        // println("Visible on edge: $visibleTrees")
 
         for (row in 1 until grid.size - 1) {
             for (col in 1 until grid[0].size - 1) {
                 val treeHeight = grid[row][col]
-                println("Checking $col / $row with height $treeHeight")
+                // println("Checking $col / $row with height $treeHeight")
 
                 var visible = true
                 for (left in 0 until col) {
@@ -27,7 +27,7 @@ class Day8Test {
                     }
                 }
                 if (visible) {
-                    println("Visible from left")
+                    // println("Visible from left")
                     visibleTrees++
                     continue
                 }
@@ -40,7 +40,7 @@ class Day8Test {
                     }
                 }
                 if (visible) {
-                    println("Visible from right")
+                    // println("Visible from right")
                     visibleTrees++
                     continue
                 }
@@ -53,7 +53,7 @@ class Day8Test {
                     }
                 }
                 if (visible) {
-                    println("Visible from top")
+                    // println("Visible from top")
                     visibleTrees++
                     continue
                 }
@@ -66,7 +66,7 @@ class Day8Test {
                     }
                 }
                 if (visible) {
-                    println("Visible from bottom")
+                    // println("Visible from bottom")
                     visibleTrees++
                     continue
                 }
