@@ -1,10 +1,13 @@
 package com.mlesniak.changeme
 
-import com.mlesniak.changeme.Direction.*
+import com.mlesniak.changeme.Direction.D
+import com.mlesniak.changeme.Direction.L
+import com.mlesniak.changeme.Direction.R
+import com.mlesniak.changeme.Direction.U
+import com.mlesniak.changeme.Direction.valueOf
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.math.absoluteValue
 
 private enum class Direction {
     R, U, L, D,
@@ -25,40 +28,40 @@ class Day9Test {
     fun part1() {
         val commands = parse()
 
-        var t = Position(0, 0)
-        var h = Position(0, 0)
+        val positions = Array<Position>(10) {
+            Position(0, 0)
+        }
         var visited = mutableSetOf<Position>()
 
         commands.forEach { c ->
             when (c.dir) {
-                R -> steps(c.steps, 1, 0, t, h, visited)
-                U -> steps(c.steps, 0, 1, t, h, visited)
-                L -> steps(c.steps, -1, 0, t, h, visited)
-                D -> steps(c.steps, 0, -1, t, h, visited)
+                R -> steps(c.steps, 1, 0, positions, visited)
+                U -> steps(c.steps, 0, 1, positions, visited)
+                L -> steps(c.steps, -1, 0, positions, visited)
+                D -> steps(c.steps, 0, -1, positions, visited)
             }
         }
 
-        // println()
-        // println("final h=$h")
-        // println("final t=$t")
+        println()
         println("${visited.size}")
-        // println(visited)
+        println(visited)
         debugVisited(visited)
     }
 
-    private fun debug(t: Position, h: Position) {
+    private fun debug(positions: Array<Position>) {
         for (row in 5 downTo 0) {
             for (col in 0..5) {
                 val p = Position(col, row)
-                val c = when {
-                    h == p -> 'H'
-                    t == p -> 'T'
-                    Position(0, 0) == p -> 's'
-                    else -> '.'
+                var c: Char
+                val pos = positions.indexOf(p)
+                if (pos == -1) {
+                    c = '.'
+                } else {
+                    c = "$pos"[0]
                 }
-                // print(c)
+                print(c)
             }
-            // println()
+            println()
         }
     }
 
@@ -67,32 +70,36 @@ class Day9Test {
             for (col in 0..5) {
                 val p = Position(col, row)
                 if (p in visited) {
-                    // print("#")
+                    print("#")
                 } else {
-                    // print(".")
+                    print(".")
                 }
             }
-            // println()
+            println()
         }
     }
 
-    private fun steps(steps: Int, dx: Int, dy: Int, t: Position, h: Position, visited: MutableSet<Position>) {
-        debug(t, h)
-        // println("STEPS $steps dx=$dx, dy=$dy, t=$t, h=$h")
-        repeat(steps) {
-            // println("h=$h, r=$t")
-            h.x += dx
-            h.y += dy
 
-            align(t, h)
-            visited += t.copy()
-            debug(t, h)
+    private fun steps(steps: Int, dx: Int, dy: Int, positions: Array<Position>, visited: MutableSet<Position>) {
+        debug(positions)
+        println("STEPS $steps dx=$dx, dy=$dy, pos=$positions")
+        repeat(steps) {
+            for (idx in positions.size - 1 downTo 1) {
+                var h = positions[idx]
+                var t = positions[idx-1]
+                println("h=$h, r=$t")
+                h.x += dx
+                h.y += dy
+                align(t, h)
+                visited += positions[0].copy()
+                debug(positions)
+            }
         }
     }
 
     private fun align(t: Position, h: Position) {
         if (t == h) {
-            // println("  Overlapping")
+            println("  Overlapping")
             return
         }
 
@@ -101,7 +108,7 @@ class Day9Test {
 
         // If still touching, do nothing.
         if (dx in -1..1 && dy in -1..1) {
-            // println("  Touching")
+            println("  Touching")
             return
         }
 
@@ -112,7 +119,7 @@ class Day9Test {
 
         t.x += dx
         t.y += dy
-        // println("  Moving dx=$dx, dy=$dy")
+        println("  Moving dx=$dx, dy=$dy")
     }
 
     private fun parse(): List<Command> {
