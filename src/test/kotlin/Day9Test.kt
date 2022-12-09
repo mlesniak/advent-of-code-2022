@@ -103,7 +103,7 @@ class Day9Test {
 
     private fun align(t: Position, h: Position) {
         if (t == h) {
-            println("  Overlapping")
+            // println("  Overlapping")
             return
         }
 
@@ -112,7 +112,7 @@ class Day9Test {
 
         // If still touching, do nothing.
         if (dx in -1..1 && dy in -1..1) {
-            println("  Touching")
+            // println("  Touching")
             return
         }
 
@@ -123,7 +123,7 @@ class Day9Test {
 
         t.x += dx
         t.y += dy
-        println("  Moving dx=$dx, dy=$dy")
+        // println("  Moving dx=$dx, dy=$dy")
     }
 
     private fun parse(): List<Command> {
