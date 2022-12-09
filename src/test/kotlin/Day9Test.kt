@@ -38,11 +38,11 @@ class Day9Test {
             }
         }
 
-        println()
-        println("final h=$h")
-        println("final t=$t")
+        // println()
+        // println("final h=$h")
+        // println("final t=$t")
         println("${visited.size}")
-        println(visited)
+        // println(visited)
         debugVisited(visited)
     }
 
@@ -56,9 +56,9 @@ class Day9Test {
                     Position(0, 0) == p -> 's'
                     else -> '.'
                 }
-                print(c)
+                // print(c)
             }
-            println()
+            // println()
         }
     }
 
@@ -67,21 +67,20 @@ class Day9Test {
             for (col in 0..5) {
                 val p = Position(col, row)
                 if (p in visited) {
-                    print("#")
+                    // print("#")
                 } else {
-                    print(".")
+                    // print(".")
                 }
             }
-            println()
+            // println()
         }
     }
 
-
     private fun steps(steps: Int, dx: Int, dy: Int, t: Position, h: Position, visited: MutableSet<Position>) {
         debug(t, h)
-        println("STEPS $steps dx=$dx, dy=$dy, t=$t, h=$h")
+        // println("STEPS $steps dx=$dx, dy=$dy, t=$t, h=$h")
         repeat(steps) {
-            println("h=$h, r=$t")
+            // println("h=$h, r=$t")
             h.x += dx
             h.y += dy
 
@@ -93,7 +92,7 @@ class Day9Test {
 
     private fun align(t: Position, h: Position) {
         if (t == h) {
-            println("  Overlapping")
+            // println("  Overlapping")
             return
         }
 
@@ -102,7 +101,7 @@ class Day9Test {
 
         // If still touching, do nothing.
         if (dx in -1..1 && dy in -1..1) {
-            println("  Touching")
+            // println("  Touching")
             return
         }
 
@@ -113,7 +112,7 @@ class Day9Test {
 
         t.x += dx
         t.y += dy
-        println("  Moving dx=$dx, dy=$dy")
+        // println("  Moving dx=$dx, dy=$dy")
     }
 
     private fun parse(): List<Command> {
