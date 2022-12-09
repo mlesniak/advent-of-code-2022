@@ -42,10 +42,10 @@ class Day9Test {
             }
         }
 
-        println()
+        // println()
         println("${visited.size}")
-        println(visited)
-        debugVisited(visited)
+        // println(visited)
+        // debugVisited(visited)
     }
 
     private fun debug(positions: Array<Position>) {
@@ -82,8 +82,8 @@ class Day9Test {
     }
 
     private fun steps(steps: Int, dx: Int, dy: Int, positions: Array<Position>, visited: MutableSet<Position>) {
-        debug(positions)
-        println("STEPS $steps dx=$dx, dy=$dy, pos=${positions.toList()}")
+        // debug(positions)
+        // println("STEPS $steps dx=$dx, dy=$dy, pos=${positions.toList()}")
         repeat(steps) {
             var h = positions.last()
             h.x += dx
@@ -97,7 +97,7 @@ class Day9Test {
                 visited += positions[0].copy()
                 // debug(positions)
             }
-            debug(positions)
+            // debug(positions)
         }
     }
 
@@ -154,9 +154,9 @@ class Day9Test {
             }
         }
 
-        println()
+        // println()
         println("${visited.size}")
-        println(visited)
-        debugVisited(visited)
+        // println(visited)
+        // debugVisited(visited)
     }
 }
