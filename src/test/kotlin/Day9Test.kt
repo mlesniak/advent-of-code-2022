@@ -28,7 +28,7 @@ class Day9Test {
     fun part1() {
         val commands = parse()
 
-        val positions = Array<Position>(10) {
+        val positions = Array<Position>(2) {
             Position(0, 0)
         }
         var visited = mutableSetOf<Position>()
@@ -56,8 +56,10 @@ class Day9Test {
                 val pos = positions.indexOf(p)
                 if (pos == -1) {
                     c = '.'
+                } else if (pos == positions.size - 1) {
+                    c = 'H'
                 } else {
-                    c = "$pos"[0]
+                    c = "$pos"[0] + 1
                 }
                 print(c)
             }
@@ -79,21 +81,23 @@ class Day9Test {
         }
     }
 
-
     private fun steps(steps: Int, dx: Int, dy: Int, positions: Array<Position>, visited: MutableSet<Position>) {
         debug(positions)
-        println("STEPS $steps dx=$dx, dy=$dy, pos=$positions")
+        println("STEPS $steps dx=$dx, dy=$dy, pos=${positions.toList()}")
         repeat(steps) {
+            var h = positions.last()
+            h.x += dx
+            h.y += dy
+
             for (idx in positions.size - 1 downTo 1) {
                 var h = positions[idx]
-                var t = positions[idx-1]
-                println("h=$h, r=$t")
-                h.x += dx
-                h.y += dy
+                var t = positions[idx - 1]
+                // println("idx=$idx h=$h, t=$t")
                 align(t, h)
                 visited += positions[0].copy()
-                debug(positions)
+                // debug(positions)
             }
+            debug(positions)
         }
     }
 
@@ -134,5 +138,25 @@ class Day9Test {
 
     @Test
     fun part2() {
+        val commands = parse()
+
+        val positions = Array<Position>(10) {
+            Position(0, 0)
+        }
+        var visited = mutableSetOf<Position>()
+
+        commands.forEach { c ->
+            when (c.dir) {
+                R -> steps(c.steps, 1, 0, positions, visited)
+                U -> steps(c.steps, 0, 1, positions, visited)
+                L -> steps(c.steps, -1, 0, positions, visited)
+                D -> steps(c.steps, 0, -1, positions, visited)
+            }
+        }
+
+        println()
+        println("${visited.size}")
+        println(visited)
+        debugVisited(visited)
     }
 }
