@@ -36,6 +36,13 @@ class Day10Test {
             val cycle = idx+1
             println("$cycle x=$v")
         }
+
+        val picks = listOf(20, 60, 100, 140, 180, 220)
+        val res = picks.sumOf { p ->
+            println("p=$p ${xs[p-1]}")
+            p * xs[p - 1]
+        }
+        println(res)
     }
 
     // Return value of X at each cycle
