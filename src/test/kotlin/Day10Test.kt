@@ -54,10 +54,10 @@ class Day10Test {
         }
 
         for (com in commands) {
-            println("--- COM $com")
-            println("x=$x")
+            // println("--- COM $com")
+            // println("x=$x")
             repeat(com.type.cycles) {
-                println("cycle $cycle")
+                // println("cycle $cycle")
 
                 val c = cycle - 1
                 val row = c / 40
@@ -74,7 +74,7 @@ class Day10Test {
                     x += com.arg!!
                 }
             }
-            println("after com: x=$x")
+            // println("after com: x=$x")
         }
 
         return grid
