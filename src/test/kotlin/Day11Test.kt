@@ -25,17 +25,58 @@ data class Monkey(
 
     val div: Int,
     val divTrue: Int,
-    val divFalse: Int
+    val divFalse: Int,
+    var inspections: Int = 0,
 )
 
 class Day11Test {
     @Test
     fun part1() {
-        val groups = readLineGroups("11.txt")
+        val monkeys = readLineGroups("11.txt")
             .map { group -> group.map { it.trim() } }
             .map { parseGroup(it) }
+        monkeys.forEach { l -> println(l) }
 
-        groups.forEach { l -> println(l) }
+        repeat(20) { round ->
+            println("--- ROUND $round")
+            for (midx in monkeys.indices) {
+                println("\nMonkey $midx")
+                val m = monkeys[midx]
+                while (m.items.isNotEmpty()) {
+                    val itemVal = m.items.removeAt(0)
+                    println("Inspecting $itemVal")
+                    m.inspections++
+                    val param = m.opearation.param ?: itemVal
+                    var newVal = when (m.opearation.operand) {
+                        Operand.ADD -> itemVal + param
+                        Operand.MUL -> itemVal * param
+                    }
+                    println("  Level is now $newVal")
+                    newVal /= 3
+                    println("  Level is now $newVal")
+                    if (newVal % m.div == 0) {
+                        println("$newVal is divisible by ${m.div}")
+                        monkeys[m.divTrue].items += newVal
+                        println("Throwing to ${m.divTrue}")
+                    } else {
+
+                        println("$newVal is not divisible by ${m.div}")
+                        monkeys[m.divFalse].items += newVal
+                        println("Throwing to ${m.divFalse}")
+                    }
+                }
+            }
+        }
+
+        monkeys.forEachIndexed { index, monkey ->
+            println("$index -> ${monkey.items} / ${monkey.inspections}")
+        }
+        val res = monkeys
+            .sortedBy { it.inspections }
+            .takeLast(2)
+            .map { it.inspections }
+            .fold(1) { a, b -> a * b }
+        println(res)
     }
 
     private fun parseGroup(lines: List<String>): Monkey {
