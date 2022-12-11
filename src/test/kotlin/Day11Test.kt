@@ -104,7 +104,7 @@ class Day11Test {
         val monkeys = readLineGroups("11.txt")
             .map { group -> group.map { it.trim() } }
             .map { parseGroup(it) }
-        monkeys.forEach { l -> println(l) }
+        // monkeys.forEach { l -> println(l) }
 
         // https://en.wikipedia.org/wiki/Chinese_remainder_theorem
         val commonModulo = monkeys.map { it.div }.fold(1L) {a, b -> a*b}
@@ -140,9 +140,9 @@ class Day11Test {
             }
         }
 
-        monkeys.forEachIndexed { index, monkey ->
-            println("$index -> ${monkey.items} / ${monkey.inspections}")
-        }
+        // monkeys.forEachIndexed { index, monkey ->
+        //     println("$index -> ${monkey.items} / ${monkey.inspections}")
+        // }
         val res = monkeys
             .sortedBy { it.inspections }
             .takeLast(2)
