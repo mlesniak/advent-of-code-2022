@@ -16,17 +16,17 @@ data class Operation(
     val operand: Operand,
     // be pragmatic:
     // null means "old"
-    val param: Int?,
+    val param: Long?,
 )
 
 data class Monkey(
-    val items: MutableList<Int>,
+    val items: MutableList<Long>,
     val opearation: Operation,
 
-    val div: Int,
+    val div: Long,
     val divTrue: Int,
     val divFalse: Int,
-    var inspections: Int = 0,
+    var inspections: Long = 0,
 )
 
 class Day11Test {
@@ -54,7 +54,7 @@ class Day11Test {
                     println("  Level is now $newVal")
                     newVal /= 3
                     println("  Level is now $newVal")
-                    if (newVal % m.div == 0) {
+                    if (newVal % m.div == 0L) {
                         println("$newVal is divisible by ${m.div}")
                         monkeys[m.divTrue].items += newVal
                         println("Throwing to ${m.divTrue}")
@@ -75,18 +75,18 @@ class Day11Test {
             .sortedBy { it.inspections }
             .takeLast(2)
             .map { it.inspections }
-            .fold(1) { a, b -> a * b }
+            .fold(1L) { a, b -> a * b }
         println(res)
     }
 
     private fun parseGroup(lines: List<String>): Monkey {
-        val items = lines[1].split(":")[1].split(",").map { it.trim().toInt() }.toMutableList()
+        val items = lines[1].split(":")[1].split(",").map { it.trim().toLong() }.toMutableList()
         val ops = lines[2].split("old", limit = 2)[1].trim().split(" ")
         val operation = Operation(
             Operand.from(ops[0]),
-            if (ops[1] == "old") null else ops[1].toInt()
+            if (ops[1] == "old") null else ops[1].toLong()
         )
-        val div = lines[3].split(" ")[3].toInt()
+        val div = lines[3].split(" ")[3].toLong()
         val divTrue = lines[4].split(" ")[5].toInt()
         val divFalse = lines[5].split(" ")[5].toInt()
 
@@ -101,5 +101,52 @@ class Day11Test {
 
     @Test
     fun part2() {
+        val monkeys = readLineGroups("11.txt")
+            .map { group -> group.map { it.trim() } }
+            .map { parseGroup(it) }
+        monkeys.forEach { l -> println(l) }
+
+        val common_modulo = monkeys.map { it.div }.fold(1L) {a, b -> a*b}
+
+        repeat(10_000) { round ->
+            println("--- ROUND $round")
+            for (midx in monkeys.indices) {
+                println("\nMonkey $midx")
+                val m = monkeys[midx]
+                while (m.items.isNotEmpty()) {
+                    val itemVal = m.items.removeAt(0)
+                    println("Inspecting $itemVal")
+                    m.inspections++
+                    val param = m.opearation.param ?: itemVal
+                    var newVal = when (m.opearation.operand) {
+                        Operand.ADD -> itemVal + param
+                        Operand.MUL -> itemVal * param
+                    }
+                    println("  Level is now $newVal")
+                    newVal %= common_modulo
+                    println("  Level is now $newVal")
+                    if (newVal % m.div == 0L) {
+                        println("$newVal is divisible by ${m.div}")
+                        monkeys[m.divTrue].items += newVal
+                        println("Throwing to ${m.divTrue}")
+                    } else {
+
+                        println("$newVal is not divisible by ${m.div}")
+                        monkeys[m.divFalse].items += newVal
+                        println("Throwing to ${m.divFalse}")
+                    }
+                }
+            }
+        }
+
+        monkeys.forEachIndexed { index, monkey ->
+            println("$index -> ${monkey.items} / ${monkey.inspections}")
+        }
+        val res = monkeys
+            .sortedBy { it.inspections }
+            .takeLast(2)
+            .map { it.inspections }
+            .fold(1L) { a, b -> a * b }
+        println(res)
     }
 }
