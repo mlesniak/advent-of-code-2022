@@ -106,34 +106,35 @@ class Day11Test {
             .map { parseGroup(it) }
         monkeys.forEach { l -> println(l) }
 
-        val common_modulo = monkeys.map { it.div }.fold(1L) {a, b -> a*b}
+        // https://en.wikipedia.org/wiki/Chinese_remainder_theorem
+        val commonModulo = monkeys.map { it.div }.fold(1L) {a, b -> a*b}
 
         repeat(10_000) { round ->
-            println("--- ROUND $round")
+            // println("--- ROUND $round")
             for (midx in monkeys.indices) {
-                println("\nMonkey $midx")
+                // println("\nMonkey $midx")
                 val m = monkeys[midx]
                 while (m.items.isNotEmpty()) {
                     val itemVal = m.items.removeAt(0)
-                    println("Inspecting $itemVal")
+                    // println("Inspecting $itemVal")
                     m.inspections++
                     val param = m.opearation.param ?: itemVal
                     var newVal = when (m.opearation.operand) {
                         Operand.ADD -> itemVal + param
                         Operand.MUL -> itemVal * param
                     }
-                    println("  Level is now $newVal")
-                    newVal %= common_modulo
-                    println("  Level is now $newVal")
+                    // println("  Level is now $newVal")
+                    newVal %= commonModulo
+                    // println("  Level is now $newVal")
                     if (newVal % m.div == 0L) {
-                        println("$newVal is divisible by ${m.div}")
+                        // println("$newVal is divisible by ${m.div}")
                         monkeys[m.divTrue].items += newVal
-                        println("Throwing to ${m.divTrue}")
+                        // println("Throwing to ${m.divTrue}")
                     } else {
 
-                        println("$newVal is not divisible by ${m.div}")
+                        // println("$newVal is not divisible by ${m.div}")
                         monkeys[m.divFalse].items += newVal
-                        println("Throwing to ${m.divFalse}")
+                        // println("Throwing to ${m.divFalse}")
                     }
                 }
             }
