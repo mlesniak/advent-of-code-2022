@@ -30,11 +30,11 @@ class Day12Test {
     fun part1() {
         val grid = Files
             .readAllLines(Path.of("12.txt"))
+            .filter { it.isNotBlank() }
             .map { line ->
                 line.toCharArray()
             }
             .toTypedArray()
-        grid.forEach { row -> println(row) }
 
         // BFS with visited.
         // State contains distance.
@@ -47,8 +47,8 @@ class Day12Test {
             val cur = states.removeFirst()
             val v = grid[cur.pos.y][cur.pos.x]
             // println("cur=$cur val=$v")
-            if (cur.path.isNotEmpty() && cur.path.last() == 'E') {
-                // println("Solved: $cur")
+            if (cur.pos == goal) {
+                println("Solved: $cur")
                 println(cur.cost)
                 break
             }
@@ -61,10 +61,12 @@ class Day12Test {
     private fun findNext(cur: BfsState, v: Char, grid: Array<CharArray>, visited: MutableSet<Pos>): List<BfsState> {
         val res = mutableListOf<BfsState>()
         val deltas = listOf(Pos(-1, 0), Pos(1, 0), Pos(0, -1), Pos(0, 1))
+
         deltas.forEach { delta ->
             val dx = cur.pos.x + delta.x
             val dy = cur.pos.y + delta.y
             val newPos = Pos(dx, dy)
+
             if (newPos in visited) {
                 return@forEach
             }
@@ -72,8 +74,8 @@ class Day12Test {
             if (dx < 0 || dy < 0 || dx >= grid[0].size || dy >= grid.size) {
                 return@forEach
             }
-            val gv = grid[dy][dx]
 
+            val gv = grid[dy][dx]
             if (gv == 'E' && v == 'z') {
                 res += BfsState(Pos(dx, dy), cur.cost + 1, cur.path + v + gv)
                 return@forEach
@@ -86,9 +88,8 @@ class Day12Test {
                 }
             }
 
-            // println("  nextState=$nextState")
-            res += BfsState(Pos(dx, dy), cur.cost + 1, cur.path + v)
-            visited += Pos(dx, dy)
+            res += BfsState(newPos, cur.cost + 1, cur.path + v)
+            visited += newPos
         }
 
         return res
