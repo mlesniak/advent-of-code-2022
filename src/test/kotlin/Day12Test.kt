@@ -3,7 +3,6 @@ package com.mlesniak.changeme
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.math.absoluteValue
 
 data class Pos(val x: Int, val y: Int)
 
@@ -76,20 +75,47 @@ class Day12Test {
             }
 
             val gv = grid[dy][dx]
+            // if (gv == 'm') {
+            //     println("M at $newPos")
+            // }
+
             if (gv == 'E' && v == 'z') {
                 res += BfsState(Pos(dx, dy), cur.cost + 1, cur.path + v + gv)
                 return@forEach
             }
-
-            if (v != 'S') {
-                // println("  looking at $gv")
-                if ((gv.code - v.code).absoluteValue > 1) {
-                    return@forEach
-                }
+            if (gv == 'E') {
+                return@forEach
             }
 
-            res += BfsState(newPos, cur.cost + 1, cur.path + v)
+            if (v != 'S') {
+                // the elevation of the destination square can be at most one higher than the elevation of your current square;
+                // This also means that the elevation of the destination square can be much lower than the elevation of your current square.)
+
+                // println("  looking at $gv")
+                var ret = true
+                if (gv.code - 1 == v.code) {
+                    ret = false
+                }
+                if (gv.code <= v.code) {
+                    ret = false
+                }
+                if (ret) {
+                    return@forEach
+                }
+
+                // if ((gv.code - v.code).absoluteValue > 1) {
+                //     return@forEach
+                // }
+            }
+
+            val newState = BfsState(newPos, cur.cost + 1, cur.path + v)
+            res += newState
             visited += newPos
+
+            if (gv > v) {
+                println("advanced to: $gv with $newState")
+            }
+
         }
 
         return res
