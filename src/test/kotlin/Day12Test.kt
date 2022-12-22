@@ -123,5 +123,59 @@ class Day12Test {
 
     @Test
     fun part2() {
+        val grid = Files
+            .readAllLines(Path.of("12.txt"))
+            .filter { it.isNotBlank() }
+            .map { line ->
+                line.toCharArray()
+            }
+            .toTypedArray()
+
+        // BFS with visited.
+        // State contains distance.
+        val starts = findAll(grid, 'a')
+        val goal = find(grid, 'E')
+
+        val res = starts.minOfOrNull { start ->
+            findGoal(grid, start, goal)
+        }
+        println(res)
+    }
+
+    private fun findGoal(
+        grid: Array<CharArray>,
+        start: Pos,
+        goal: Pos
+    ): Int {
+        val states = mutableListOf(BfsState(start, cost = 0))
+        val visited = mutableSetOf<Pos>()
+        while (states.isNotEmpty()) {
+            val cur = states.removeFirst()
+            val v = grid[cur.pos.y][cur.pos.x]
+            // println("cur=$cur val=$v")
+            if (cur.pos == goal) {
+                return cur.cost
+            }
+
+            // Find next states.
+            states += findNext(cur, v, grid, visited)
+        }
+
+        // No path found. Ignoring it for now.
+        return Int.MAX_VALUE
+    }
+
+    private fun findAll(grid: Array<CharArray>, target: Char): List<Pos> {
+        val res = mutableListOf<Pos>()
+
+        grid.forEachIndexed { row, chars ->
+            chars.forEachIndexed { col, c ->
+                if (c == target) {
+                    res += Pos(col, row)
+                }
+            }
+        }
+
+        return res
     }
 }
