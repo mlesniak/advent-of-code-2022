@@ -3,6 +3,8 @@ package com.mlesniak.changeme
 import java.nio.file.Files
 import java.nio.file.Path
 
+fun readLines(filename: String): MutableList<String> = Files.readAllLines(Path.of(filename))
+
 fun readLineGroups(filename: String): MutableList<MutableList<String>> {
     val res = mutableListOf<MutableList<String>>()
 

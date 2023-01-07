@@ -139,5 +139,25 @@ class Day13Test {
 
     @Test
     fun part2() {
+        val res = readLines("13.txt")
+            .filter { it.isNotBlank() }
+            .sortedWith { o1, o2 ->
+                val l1 = L.parse(o1!!)
+                val l2 = L.parse(o2!!)
+
+                when (checkOrder(l1, l2)) {
+                    Correct -> -1
+                    Incorrect -> 1
+                    Continue -> 0
+                }
+            }
+            .mapIndexed { index, s -> index to s }
+            .filter {
+                val s = it.second
+                s in setOf("[[2]]", "[[6]]")
+            }
+            .map { it.first + 1 }
+            .reduce { a, b -> a * b }
+        println(res)
     }
 }
