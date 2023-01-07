@@ -1,5 +1,8 @@
 package com.mlesniak.changeme
 
+import com.mlesniak.changeme.Day13Test.Result.Continue
+import com.mlesniak.changeme.Day13Test.Result.Correct
+import com.mlesniak.changeme.Day13Test.Result.Incorrect
 import org.junit.jupiter.api.Test
 
 /*
@@ -17,7 +20,7 @@ fun Any.isList() = this is L
 fun Any.isNumber() = this is Int
 
 class L(vararg es: Any) {
-    private val elems: List<Any> = es.toList()
+    val elems: List<Any> = es.toList()
 
     override fun toString(): String = "[${elems.joinToString(separator = ",")}]"
 
@@ -29,21 +32,27 @@ class L(vararg es: Any) {
             var i = 1
             while (i < s.length) {
                 val c = s[i]
-                if (c.isDigit()) {
-                    var k = i + 1
-                    while (s[k].isDigit()) {
-                        k++
+                when {
+                    c.isDigit() -> {
+                        var k = i + 1
+                        while (s[k].isDigit()) {
+                            k++
+                        }
+                        val num = s.substring(i until k)
+                        elems += num.toInt()
+                        i = k
+                        continue
                     }
-                    val num = s.substring(i until k)
-                    elems += num.toInt()
-                    i = k
-                    continue
-                } else if (c == ']') {
-                    return L(*(elems.toTypedArray())) to i
-                } else if (c == '[') {
-                    val (elem, k) = internalParse(s.substring(i))
-                    elems += elem
-                    i += k + 1
+
+                    c == ']' -> {
+                        return L(*(elems.toTypedArray())) to i
+                    }
+
+                    c == '[' -> {
+                        val (elem, k) = internalParse(s.substring(i))
+                        elems += elem
+                        i += k + 1
+                    }
                 }
                 i++
             }
@@ -56,17 +65,76 @@ class L(vararg es: Any) {
 class Day13Test {
     @Test
     fun part1() {
-        val groups = readLineGroups("13.txt")
-        groups.forEach { handleGroup(it) }
+        val res =
+            readLineGroups("13.txt")
+                .mapIndexed { index, strings -> index to handleGroup(strings) }
+                .filter { it.second }
+                .sumOf { it.first + 1 }
+        println(res)
     }
 
-    private fun handleGroup(elems: MutableList<String>) {
+    private fun handleGroup(elems: MutableList<String>): Boolean {
         val l1 = L.parse(elems[0])
         val l2 = L.parse(elems[1])
 
-        println(l1)
-        println(l2)
-        println()
+        // println(l1)
+        // println(l2)
+        val res = checkOrder(l1, l2)
+        // println(res)
+        // println()
+        return res == Correct
+    }
+
+    enum class Result {
+        Correct,
+        Incorrect,
+        Continue,
+    }
+
+    private fun checkOrder(l1: Any, l2: Any): Result {
+        // println("l1=$l1\nl2=$l2\n")
+        when {
+            l1.isNumber() && l2.isNumber() -> {
+                val i = l1 as Int
+                val j = l2 as Int
+                return when {
+                    i < j -> Correct
+                    i > j -> Incorrect
+                    else -> Continue
+                }
+            }
+
+            l1.isList() && l2.isList() -> {
+                val ll1 = l1 as L
+                val ll2 = l2 as L
+                for (i in ll1.elems.indices) {
+                    if (i >= ll2.elems.size) {
+                        return Incorrect
+                    }
+                    val r = checkOrder(ll1.elems[i], ll2.elems[i])
+                    if (r != Continue) {
+                        return r
+                    }
+                }
+                if (ll2.elems.size < ll1.elems.size) {
+                    return Incorrect
+                }
+                if (ll1.elems.size == ll2.elems.size) {
+                    return Continue
+                }
+                return Correct
+            }
+
+            l1.isNumber() && l2.isList() -> {
+                return checkOrder(L(l1 as Int), l2)
+            }
+
+            l1.isList() && l2.isNumber() -> {
+                return checkOrder(l1, L(l2))
+            }
+        }
+
+        return Correct
     }
 
     @Test
