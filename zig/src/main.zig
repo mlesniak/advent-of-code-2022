@@ -1,5 +1,6 @@
 const std = @import("std");
 const print = std.debug.print;
+const mem = std.mem;
 const fs = std.fs;
 
 // 498,4 -> 498,6 -> 496,6
@@ -15,23 +16,28 @@ pub fn main() !void {
 
     // Split lines.
     var lines = std.ArrayList([]const u8).init(allocator);
-    var line_buf: []u8 = try allocator.alloc(u8, 1024);
+    var s: u32 = 0;
     var i: u32 = 0;
-    for (buf) |char| {
-        // print("{c}\n", .{char});
-        if (char == '\n') {
-            try lines.append(line_buf[0..i]);
-            line_buf = try allocator.alloc(u8, 1024);
-            i = 0;
-            continue; 
+    while (i < buf.len) : (i += 1) { // for loop?
+        if (buf[i] != '\n') {
+            continue;
         }
-        line_buf[i] = char;
-        i += 1;
+
+        var l = try allocator.alloc(u8, i - 1 - s);
+        mem.copy(u8, l, buf[s..(i - 1)]);
+        try lines.append(l);
+        s = i + 1;
+        continue;
     }
-    try lines.append(line_buf[0..i]);
+    var l = try allocator.alloc(u8, i - 1 - s);
+    mem.copy(u8, l, buf[s..(i - 1)]);
+    try lines.append(l);
 
     for (lines.items) |line| {
         print("Line: {s}\n", .{line});
+    }
+
+    for (lines.items) |line| {
         allocator.free(line);
     }
     lines.clearAndFree();
