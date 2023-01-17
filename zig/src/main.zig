@@ -11,28 +11,10 @@ pub fn main() !void {
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
 
-    const buf = try read(allocator, "14.txt");
+    const buf = try readFromFile(allocator, "14.txt");
     defer allocator.free(buf);
 
-    // Split lines.
-    var lines = std.ArrayList([]const u8).init(allocator);
-    var s: u32 = 0;
-    var i: u32 = 0;
-    while (i < buf.len) : (i += 1) { // for loop?
-        if (buf[i] != '\n') {
-            continue;
-        }
-
-        var l = try allocator.alloc(u8, i - 1 - s);
-        mem.copy(u8, l, buf[s..(i - 1)]);
-        try lines.append(l);
-        s = i + 1;
-        continue;
-    }
-    var l = try allocator.alloc(u8, i - 1 - s);
-    mem.copy(u8, l, buf[s..(i - 1)]);
-    try lines.append(l);
-
+    var lines = try splitString(allocator, buf);
     for (lines.items) |line| {
         print("Line: {s}\n", .{line});
     }
@@ -48,7 +30,7 @@ pub fn main() !void {
 }
 
 // Returned value has to be free'd by caller.
-fn read(allocator: std.mem.Allocator, fname: []const u8) ![]u8 {
+fn readFromFile(allocator: std.mem.Allocator, fname: []const u8) ![]u8 {
     const fd = try fs.cwd().openFile(fname, .{});
     defer fd.close();
     var size = (try fd.stat()).size;
@@ -62,4 +44,27 @@ fn read(allocator: std.mem.Allocator, fname: []const u8) ![]u8 {
     _ = try fd.readAll(buf);
 
     return buf;
+}
+
+fn splitString(allocator: std.mem.Allocator, string: []u8) !std.ArrayList([]const u8) {
+    var lines = std.ArrayList([]const u8).init(allocator);
+    var s: u32 = 0;
+    var i: u32 = 0;
+    while (i < string.len) : (i += 1) { // for loop?
+        if (string[i] != '\n') {
+            continue;
+        }
+
+        var l = try allocator.alloc(u8, i - 1 - s);
+        mem.copy(u8, l, string[s..(i - 1)]);
+        try lines.append(l);
+        s = i + 1;
+        continue;
+    }
+
+    var l = try allocator.alloc(u8, i - 1 - s);
+    mem.copy(u8, l, string[s..(i - 1)]);
+    try lines.append(l);
+
+    return lines;
 }
