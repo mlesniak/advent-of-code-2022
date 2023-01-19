@@ -7,20 +7,34 @@ const util = @import("util");
 // 498,4 -> 498,6 -> 496,6
 // 503,4 -> 502,4 -> 502,9 -> 494,9
 
+const Point = struct {
+    x: u32,
+    y: u32,
+    
+    // 123,456
+    fn parse(s: []const u8) Point {
+        // write string parser function    
+        _ = s;
+    }
+};
+
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
 
     var lines = try readLinesFromFile(allocator, "14.txt");
-    for (lines) |line| {
-        print("{s}\n", .{line});
-    }
+    defer freeSlice(allocator, lines);
+    // for (lines) |line| {
+    //     print("{s}\n", .{line});
+    // }
+
+    // var points = std.AutoHashMap(Point, void).init(allocator);
+    // _ = points;
 
     // into data structure
     // simulate algorithm
     // tests?
-    freeSlice(allocator, lines);
 }
 
 fn freeSlice(allocator: std.mem.Allocator, slice: [][]const u8) void {
@@ -33,7 +47,7 @@ fn freeSlice(allocator: std.mem.Allocator, slice: [][]const u8) void {
 fn readLinesFromFile(allocator: std.mem.Allocator, filename: []const u8) ![][]const u8 {
     const buf = try readFromFile(allocator, filename);
     defer allocator.free(buf);
-    return try splitString(allocator, buf);
+    return try split(allocator, buf, '\n');
 }
 
 // Returned value has to be free'd by caller.
@@ -53,13 +67,13 @@ fn readFromFile(allocator: std.mem.Allocator, fname: []const u8) ![]u8 {
     return buf;
 }
 
-fn splitString(allocator: std.mem.Allocator, string: []u8) ![][]const u8 {
-    var lines = std.ArrayList([]const u8).init(allocator);
+fn split(allocator: std.mem.Allocator, string: []u8, separator: u8) ![][]u8 {
+    var lines = std.ArrayList([]u8).init(allocator);
     defer lines.deinit();
     var s: u32 = 0;
     var i: u32 = 0;
     while (i < string.len) : (i += 1) { // for loop?
-        if (string[i] != '\n') {
+        if (string[i] != separator) {
             continue;
         }
 
