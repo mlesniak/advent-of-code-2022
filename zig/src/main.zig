@@ -26,7 +26,7 @@ pub fn main() !void {
     var lines = try readLinesFromFile(allocator, "14.txt");
     defer freeSlice(allocator, lines);
     for (lines) |line| {
-        print("{s}\n", .{line});
+        print("'{s}'\n", .{line});
     }
 
     // var points = std.AutoHashMap(Point, void).init(allocator);
@@ -72,6 +72,7 @@ fn split(allocator: std.mem.Allocator, string: []u8, separator: []const u8) ![][
     defer lines.deinit();
     var s: u32 = 0;
     var i: u32 = 0;
+    var found = false;
     loop: while (i < string.len) : (i += 1) { // for loop?
         for (separator) |c, si| {
             if (i+si > string.len or string[i+si] != c) {
@@ -79,15 +80,19 @@ fn split(allocator: std.mem.Allocator, string: []u8, separator: []const u8) ![][
             }
         }
 
+        found = true;
         var l = try allocator.alloc(u8, i - s);
         mem.copy(u8, l, string[s..i]);
         try lines.append(l);
-        s = i + 1;
+        s = i + @intCast(u32, separator.len);
     }
 
-    var l = try allocator.alloc(u8, i - s);
-    mem.copy(u8, l, string[s..i]);
-    try lines.append(l);
+    // THERE'S A BUG HERE.
+    if (!found) {
+        var l = try allocator.alloc(u8, i - s);
+        mem.copy(u8, l, string[s..i]);
+        try lines.append(l);
+    }
 
     return lines.toOwnedSlice();
 }
