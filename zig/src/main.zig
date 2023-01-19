@@ -25,9 +25,9 @@ pub fn main() !void {
 
     var lines = try readLinesFromFile(allocator, "14.txt");
     defer freeSlice(allocator, lines);
-    // for (lines) |line| {
-    //     print("{s}\n", .{line});
-    // }
+    for (lines) |line| {
+        print("{s}\n", .{line});
+    }
 
     // var points = std.AutoHashMap(Point, void).init(allocator);
     // _ = points;
@@ -47,7 +47,7 @@ fn freeSlice(allocator: std.mem.Allocator, slice: [][]const u8) void {
 fn readLinesFromFile(allocator: std.mem.Allocator, filename: []const u8) ![][]const u8 {
     const buf = try readFromFile(allocator, filename);
     defer allocator.free(buf);
-    return try split(allocator, buf, '\n');
+    return try split(allocator, buf, "\n");
 }
 
 // Returned value has to be free'd by caller.
@@ -67,21 +67,22 @@ fn readFromFile(allocator: std.mem.Allocator, fname: []const u8) ![]u8 {
     return buf;
 }
 
-fn split(allocator: std.mem.Allocator, string: []u8, separator: u8) ![][]u8 {
+fn split(allocator: std.mem.Allocator, string: []u8, separator: []const u8) ![][]u8 {
     var lines = std.ArrayList([]u8).init(allocator);
     defer lines.deinit();
     var s: u32 = 0;
     var i: u32 = 0;
-    while (i < string.len) : (i += 1) { // for loop?
-        if (string[i] != separator) {
-            continue;
+    loop: while (i < string.len) : (i += 1) { // for loop?
+        for (separator) |c, si| {
+            if (i+si > string.len or string[i+si] != c) {
+                continue :loop;
+            }
         }
 
         var l = try allocator.alloc(u8, i - s);
         mem.copy(u8, l, string[s..i]);
         try lines.append(l);
         s = i + 1;
-        continue;
     }
 
     var l = try allocator.alloc(u8, i - s);
@@ -89,4 +90,8 @@ fn split(allocator: std.mem.Allocator, string: []u8, separator: u8) ![][]u8 {
     try lines.append(l);
 
     return lines.toOwnedSlice();
+}
+
+fn p(s: []const u8) void {
+    print("{s}\n", .{s});
 }
