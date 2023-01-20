@@ -70,9 +70,9 @@ fn readFromFile(allocator: std.mem.Allocator, fname: []const u8) ![]u8 {
 fn split(allocator: std.mem.Allocator, string: []u8, separator: []const u8) ![][]u8 {
     var lines = std.ArrayList([]u8).init(allocator);
     defer lines.deinit();
+
     var s: u32 = 0;
     var i: u32 = 0;
-    var found = false;
     loop: while (i < string.len) : (i += 1) { // for loop?
         for (separator) |c, si| {
             if (i+si > string.len or string[i+si] != c) {
@@ -80,19 +80,14 @@ fn split(allocator: std.mem.Allocator, string: []u8, separator: []const u8) ![][
             }
         }
 
-        found = true;
         var l = try allocator.alloc(u8, i - s);
         mem.copy(u8, l, string[s..i]);
         try lines.append(l);
         s = i + @intCast(u32, separator.len);
     }
-
-    // THERE'S A BUG HERE.
-    if (!found) {
-        var l = try allocator.alloc(u8, i - s);
-        mem.copy(u8, l, string[s..i]);
-        try lines.append(l);
-    }
+    var l = try allocator.alloc(u8, i - s);
+    mem.copy(u8, l, string[s..i]);
+    try lines.append(l);
 
     return lines.toOwnedSlice();
 }
