@@ -10,24 +10,38 @@ const util = @import("util");
 const Point = struct {
     x: u32,
     y: u32,
-    
-    // 123,456
-    fn parse(s: []const u8) Point {
-        // write string parser function    
-        _ = s;
+
+    // Parse a string '123,456' as a point. No error handling,
+    // string has to be trimmed.
+    fn parse(allocator: std.mem.Allocator, s: []const u8) Point {
+        var parts = split(allocator, s, ",") catch undefined;
+        defer {
+            for (parts) |p| {
+                allocator.free(p);
+            }
+            allocator.free(parts);
+        }
+        return Point{
+            .x = std.fmt.parseInt(u32, parts[0], 10) catch undefined,
+            .y = std.fmt.parseInt(u32, parts[1], 10) catch undefined,
+        };
     }
 };
 
+// Day 14.
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
 
-    var lines = try readLinesFromFile(allocator, "14.txt");
-    defer freeSlice(allocator, lines);
-    for (lines) |line| {
-        print("'{s}'\n", .{line});
-    }
+    var p = Point.parse(allocator, "123,456");
+    print("{}\n", .{p});
+
+    // var lines = try readLinesFromFile(allocator, "14.txt");
+    // defer freeSlice(allocator, lines);
+    // for (lines) |line| {
+    //     print("'{s}'\n", .{line});
+    // }
 
     // var points = std.AutoHashMap(Point, void).init(allocator);
     // _ = points;
@@ -67,7 +81,7 @@ fn readFromFile(allocator: std.mem.Allocator, fname: []const u8) ![]u8 {
     return buf;
 }
 
-fn split(allocator: std.mem.Allocator, string: []u8, separator: []const u8) ![][]u8 {
+fn split(allocator: std.mem.Allocator, string: []const u8, separator: []const u8) ![][]u8 {
     var lines = std.ArrayList([]u8).init(allocator);
     defer lines.deinit();
 
@@ -75,7 +89,7 @@ fn split(allocator: std.mem.Allocator, string: []u8, separator: []const u8) ![][
     var i: u32 = 0;
     loop: while (i < string.len) : (i += 1) { // for loop?
         for (separator) |c, si| {
-            if (i+si > string.len or string[i+si] != c) {
+            if (i + si > string.len or string[i + si] != c) {
                 continue :loop;
             }
         }
@@ -90,8 +104,4 @@ fn split(allocator: std.mem.Allocator, string: []u8, separator: []const u8) ![][
     try lines.append(l);
 
     return lines.toOwnedSlice();
-}
-
-fn p(s: []const u8) void {
-    print("{s}\n", .{s});
 }
