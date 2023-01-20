@@ -85,8 +85,8 @@ fn addPoints(points: *std.AutoHashMap(Point, void), p1: Point, p2: Point) !void 
                 try points.put(Point {.x = p1.x, .y = y}, {});
             }
         } else {
-            var y = p1.y;
-            while (y <= p2.y): (y+=1) {
+            var y = p2.y;
+            while (y <= p1.y): (y+=1) {
                 try points.put(Point {.x = p1.x, .y = y}, {});
             }
         }
@@ -103,10 +103,6 @@ fn addPoints(points: *std.AutoHashMap(Point, void), p1: Point, p2: Point) !void 
                 try points.put(Point {.x = x, .y = p1.y}, {});
             }
         }}
-}
-
-fn getDelta(a: u32, b: u32) u32 {
-    if (a < b) return 1 else return -1;
 }
 
 fn freeSlice(allocator: std.mem.Allocator, slice: [][]const u8) void {
