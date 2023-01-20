@@ -33,22 +33,80 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
+    
+    var points = std.AutoHashMap(Point, void).init(allocator);
+    defer points.deinit();
 
-    var p = Point.parse(allocator, "    123,456              ");
-    print("{}\n", .{p});
+    var lines = try readLinesFromFile(allocator, "14.txt");
+    defer freeSlice(allocator, lines);
+    for (lines) |line| {
+        parseLine(allocator, &points, line) catch {
+            print("Unable to parse line {s}\n", .{line});
+            return;
+        };
+    }
 
-    // var lines = try readLinesFromFile(allocator, "14.txt");
-    // defer freeSlice(allocator, lines);
-    // for (lines) |line| {
-    //     print("'{s}'\n", .{line});
-    // }
-
-    // var points = std.AutoHashMap(Point, void).init(allocator);
-    // _ = points;
+    print("--- Points:\n", .{});
+    var ki = points.keyIterator();
+    while (ki.next()) |entry| {
+        print("{}\n", .{entry});
+    }
 
     // into data structure
     // simulate algorithm
     // tests?
+}
+
+fn parseLine(allocator: std.mem.Allocator, points: *std.AutoHashMap(Point, void), line: []const u8) !void {
+    // print("Parsing '{s}'\n", .{line});
+    var segments = try split(allocator, line, " -> ");
+    defer freeSlice(allocator, segments);
+
+    var plist = std.ArrayList(Point).init(allocator);
+    for (segments) |segment| {
+        try plist.append(Point.parse(allocator, segment));
+    }
+
+    var ps = plist.toOwnedSlice();
+    defer allocator.free(ps);
+
+    var i: u32 = 0;
+    while (i < ps.len - 1) : (i += 1) {
+        try addPoints(points, ps[i], ps[i+1]);
+    }
+}
+
+fn addPoints(points: *std.AutoHashMap(Point, void), p1: Point, p2: Point) !void {
+    if (p1.x == p2.x) {
+        // Iterate over y
+        if (p1.y < p2.y) {
+            var y = p1.y;
+            while (y <= p2.y): (y+=1) {
+                try points.put(Point {.x = p1.x, .y = y}, {});
+            }
+        } else {
+            var y = p1.y;
+            while (y <= p2.y): (y+=1) {
+                try points.put(Point {.x = p1.x, .y = y}, {});
+            }
+        }
+    } else {
+        // Iterate over x
+        if (p1.x < p2.x) {
+            var x = p1.x;
+            while (x <= p2.x): (x+=1) {
+                try points.put(Point {.x = x, .y = p1.y}, {});
+            }
+        } else {
+            var x = p2.x;
+            while (x <= p1.x): (x+=1) {
+                try points.put(Point {.x = x, .y = p1.y}, {});
+            }
+        }}
+}
+
+fn getDelta(a: u32, b: u32) u32 {
+    if (a < b) return 1 else return -1;
 }
 
 fn freeSlice(allocator: std.mem.Allocator, slice: [][]const u8) void {
