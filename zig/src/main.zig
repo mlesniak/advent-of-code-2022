@@ -11,10 +11,10 @@ const Point = struct {
     x: u32,
     y: u32,
 
-    // Parse a string '123,456' as a point. No error handling,
-    // string has to be trimmed.
+    // Parse a string '123,456' as a point. No error handling.
     fn parse(allocator: std.mem.Allocator, s: []const u8) Point {
-        var parts = split(allocator, s, ",") catch undefined;
+        var trimmed = trim(s);
+        var parts = split(allocator, trimmed, ",") catch undefined;
         defer {
             for (parts) |p| {
                 allocator.free(p);
@@ -34,7 +34,7 @@ pub fn main() !void {
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
 
-    var p = Point.parse(allocator, "123,456");
+    var p = Point.parse(allocator, "    123,456              ");
     print("{}\n", .{p});
 
     // var lines = try readLinesFromFile(allocator, "14.txt");
@@ -104,4 +104,12 @@ fn split(allocator: std.mem.Allocator, string: []const u8, separator: []const u8
     try lines.append(l);
 
     return lines.toOwnedSlice();
+}
+
+fn trim(s: []const u8) []const u8 {
+    var i: u32 = 0;
+    while (s[i] == ' ') : (i += 1) {}
+    var j = s.len - 1;
+    while (s[j] == ' ') : (j -= 1) {}
+    return s[i..j+1];
 }
