@@ -7,9 +7,11 @@ const util = @import("util");
 // 498,4 -> 498,6 -> 496,6
 // 503,4 -> 502,4 -> 502,9 -> 494,9
 
+const sand_source = Point{ .x = 500, .y = 0 };
+
 const Point = struct {
-    x: u32,
-    y: u32,
+    x: i32,
+    y: i32,
 
     // Parse a string '123,456' as a point. No error handling.
     fn parse(allocator: std.mem.Allocator, s: []const u8) Point {
@@ -22,8 +24,8 @@ const Point = struct {
             allocator.free(parts);
         }
         return Point{
-            .x = std.fmt.parseInt(u32, parts[0], 10) catch undefined,
-            .y = std.fmt.parseInt(u32, parts[1], 10) catch undefined,
+            .x = std.fmt.parseInt(i32, parts[0], 10) catch undefined,
+            .y = std.fmt.parseInt(i32, parts[1], 10) catch undefined,
         };
     }
 };
@@ -33,7 +35,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
-    
+
     var points = std.AutoHashMap(Point, void).init(allocator);
     defer points.deinit();
 
@@ -47,14 +49,39 @@ pub fn main() !void {
     }
 
     print("--- Points:\n", .{});
-    var ki = points.keyIterator();
-    while (ki.next()) |entry| {
-        print("{}\n", .{entry});
-    }
-
+    draw(&points);
     // into data structure
     // simulate algorithm
     // tests?
+}
+
+fn draw(points: *std.AutoHashMap(Point, void)) void {
+    var tmp = points.keyIterator();
+    var start = tmp.next() orelse undefined;
+    var top_left = Point{ .x = start.x, .y = start.y};
+    var bottom_right = Point{ .x = start.x, .y = start.y};
+
+    var ki = points.keyIterator();
+    while (ki.next()) |p| {
+        top_left.x = @min(top_left.x, p.x) ;
+        top_left.y = @min(top_left.y, p.y) ;
+        bottom_right.x = @max(bottom_right.x, p.x) ;
+        bottom_right.y = @max(bottom_right.y, p.y) ;
+    }
+
+    const border = 1;
+    var y = top_left.y - border;
+    while (y < bottom_right.y + border + 1): (y+=1) {
+        var x = top_left.x - border;
+        while (x < bottom_right.x + border + 1): (x+=1) {
+            if (points.contains(Point{.x = x, .y = y})) {
+                print("#", .{});
+            } else {
+                print(".", .{});
+            }
+        }
+        print("\n", .{});
+    }
 }
 
 fn parseLine(allocator: std.mem.Allocator, points: *std.AutoHashMap(Point, void), line: []const u8) !void {
@@ -72,7 +99,7 @@ fn parseLine(allocator: std.mem.Allocator, points: *std.AutoHashMap(Point, void)
 
     var i: u32 = 0;
     while (i < ps.len - 1) : (i += 1) {
-        try addPoints(points, ps[i], ps[i+1]);
+        try addPoints(points, ps[i], ps[i + 1]);
     }
 }
 
@@ -81,28 +108,29 @@ fn addPoints(points: *std.AutoHashMap(Point, void), p1: Point, p2: Point) !void 
         // Iterate over y
         if (p1.y < p2.y) {
             var y = p1.y;
-            while (y <= p2.y): (y+=1) {
-                try points.put(Point {.x = p1.x, .y = y}, {});
+            while (y <= p2.y) : (y += 1) {
+                try points.put(Point{ .x = p1.x, .y = y }, {});
             }
         } else {
             var y = p2.y;
-            while (y <= p1.y): (y+=1) {
-                try points.put(Point {.x = p1.x, .y = y}, {});
+            while (y <= p1.y) : (y += 1) {
+                try points.put(Point{ .x = p1.x, .y = y }, {});
             }
         }
     } else {
         // Iterate over x
         if (p1.x < p2.x) {
             var x = p1.x;
-            while (x <= p2.x): (x+=1) {
-                try points.put(Point {.x = x, .y = p1.y}, {});
+            while (x <= p2.x) : (x += 1) {
+                try points.put(Point{ .x = x, .y = p1.y }, {});
             }
         } else {
             var x = p2.x;
-            while (x <= p1.x): (x+=1) {
-                try points.put(Point {.x = x, .y = p1.y}, {});
+            while (x <= p1.x) : (x += 1) {
+                try points.put(Point{ .x = x, .y = p1.y }, {});
             }
-        }}
+        }
+    }
 }
 
 fn freeSlice(allocator: std.mem.Allocator, slice: [][]const u8) void {
@@ -165,5 +193,5 @@ fn trim(s: []const u8) []const u8 {
     while (s[i] == ' ') : (i += 1) {}
     var j = s.len - 1;
     while (s[j] == ' ') : (j -= 1) {}
-    return s[i..j+1];
+    return s[i .. j + 1];
 }
