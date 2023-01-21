@@ -50,7 +50,6 @@ pub fn main() !void {
 
     print("--- Points:\n", .{});
     draw(&points);
-    // into data structure
     // simulate algorithm
     // tests?
 }
