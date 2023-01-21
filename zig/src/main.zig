@@ -51,23 +51,24 @@ pub fn main() !void {
         };
     }
 
-    print("LEVEL\n", .{});
-    draw(&walls, &sand);
+    // print("LEVEL\n", .{});
+    // draw(&walls, &sand);
 
-    var steps: u32 = 10;
-    while (steps > 0): (steps -= 1) {
-        try simulate(&walls, &sand);
-        // var si = sand.keyIterator();
-        // while (si.next()) |s| {
-        //     print("S: {}\n", .{s});
-        // }
-        draw(&walls, &sand);
+    while (true) {
+        simulate(&walls, &sand) catch break;
+        // draw(&walls, &sand);
     }
+
+    print("{}\n", .{sand.count()});
 }
 
-fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) !void {
+// Error class. Not totally perfect, since it's not an error per se.
+const ComputationError = error{InfiniteFall};
+
+fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) ComputationError!void {
     var pos = Point{ .x = 500, .y = 0 };
 
+    const threshold = 1_000;
     while (true) {
         var move = nextMove(pos, walls, sand);
         if (move) |np| {
@@ -75,9 +76,13 @@ fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, 
         } else {
             break;
         }
+        if (pos.y > threshold) {
+            return ComputationError.InfiniteFall;
+        }
     }
 
-    try sand.put(pos, {});
+    // Ignoring out of memory. Fix this by combining error classes.
+    sand.put(pos, {}) catch undefined;
 }
 
 fn nextMove(pos: Point, walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) ?Point {
