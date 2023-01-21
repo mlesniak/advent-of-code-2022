@@ -54,19 +54,22 @@ pub fn main() !void {
     print("LEVEL\n", .{});
     draw(&walls, &sand);
 
-    try simulate(&walls, &sand);
-    var si = sand.keyIterator();
-    while (si.next()) |s| {
-        print("S: {}\n", .{s});
+    var steps: u32 = 10;
+    while (steps > 0): (steps -= 1) {
+        try simulate(&walls, &sand);
+        // var si = sand.keyIterator();
+        // while (si.next()) |s| {
+        //     print("S: {}\n", .{s});
+        // }
+        draw(&walls, &sand);
     }
-    draw(&walls, &sand);
 }
 
 fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) !void {
     var pos = Point{ .x = 500, .y = 0 };
 
     while (true) {
-        var move = nextMove(pos, walls);
+        var move = nextMove(pos, walls, sand);
         if (move) |np| {
             pos = np;
         } else {
@@ -77,20 +80,20 @@ fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, 
     try sand.put(pos, {});
 }
 
-fn nextMove(pos: Point, walls: *std.AutoHashMap(Point, void)) ?Point {
+fn nextMove(pos: Point, walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) ?Point {
     // Down?
     var down = Point{ .x = pos.x, .y = pos.y + 1 };
-    if (!walls.contains(down)) {
+    if (!walls.contains(down) and !sand.contains(down)) {
         return down;
     }
 
     var down_left = Point{ .x = pos.x - 1, .y = pos.y + 1 };
-    if (!walls.contains(down_left)) {
+    if (!walls.contains(down_left) and !sand.contains(down_left)) {
         return down_left;
     }
 
     var down_right = Point{ .x = pos.x + 1, .y = pos.y + 1 };
-    if (!walls.contains(down_right)) {
+    im
         return down_right;
     }
 
