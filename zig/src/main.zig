@@ -93,7 +93,7 @@ fn nextMove(pos: Point, walls: *std.AutoHashMap(Point, void), sand: *std.AutoHas
     }
 
     var down_right = Point{ .x = pos.x + 1, .y = pos.y + 1 };
-    im
+    if (!walls.contains(down_right) and !sand.contains(down_right)) {
         return down_right;
     }
 
