@@ -36,45 +36,90 @@ pub fn main() !void {
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
 
-    var points = std.AutoHashMap(Point, void).init(allocator);
-    defer points.deinit();
+    var walls = std.AutoHashMap(Point, void).init(allocator);
+    defer walls.deinit();
+
+    var sand = std.AutoHashMap(Point, void).init(allocator);
+    defer sand.deinit();
 
     var lines = try readLinesFromFile(allocator, "14.txt");
     defer freeSlice(allocator, lines);
     for (lines) |line| {
-        parseLine(allocator, &points, line) catch {
+        parseLine(allocator, &walls, line) catch {
             print("Unable to parse line {s}\n", .{line});
             return;
         };
     }
 
-    print("--- Points:\n", .{});
-    draw(&points);
-    // simulate algorithm
-    // tests?
+    print("LEVEL\n", .{});
+    draw(&walls, &sand);
+
+    try simulate(&walls, &sand);
+    var si = sand.keyIterator();
+    while (si.next()) |s| {
+        print("S: {}\n", .{s});
+    }
+    draw(&walls, &sand);
 }
 
-fn draw(points: *std.AutoHashMap(Point, void)) void {
+fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) !void {
+    var pos = Point{ .x = 500, .y = 0 };
+
+    while (true) {
+        var move = nextMove(pos, walls);
+        if (move) |np| {
+            pos = np;
+        } else {
+            break;
+        }
+    }
+
+    try sand.put(pos, {});
+}
+
+fn nextMove(pos: Point, walls: *std.AutoHashMap(Point, void)) ?Point {
+    // Down?
+    var down = Point{ .x = pos.x, .y = pos.y + 1 };
+    if (!walls.contains(down)) {
+        return down;
+    }
+
+    var down_left = Point{ .x = pos.x - 1, .y = pos.y + 1 };
+    if (!walls.contains(down_left)) {
+        return down_left;
+    }
+
+    var down_right = Point{ .x = pos.x + 1, .y = pos.y + 1 };
+    if (!walls.contains(down_right)) {
+        return down_right;
+    }
+
+    return null;
+}
+
+fn draw(points: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) void {
     var tmp = points.keyIterator();
     var start = tmp.next() orelse undefined;
-    var top_left = Point{ .x = start.x, .y = start.y};
-    var bottom_right = Point{ .x = start.x, .y = start.y};
+    var top_left = Point{ .x = start.x, .y = start.y };
+    var bottom_right = Point{ .x = start.x, .y = start.y };
 
     var ki = points.keyIterator();
     while (ki.next()) |p| {
-        top_left.x = @min(top_left.x, p.x) ;
-        top_left.y = @min(top_left.y, p.y) ;
-        bottom_right.x = @max(bottom_right.x, p.x) ;
-        bottom_right.y = @max(bottom_right.y, p.y) ;
+        top_left.x = @min(top_left.x, p.x);
+        top_left.y = @min(top_left.y, p.y);
+        bottom_right.x = @max(bottom_right.x, p.x);
+        bottom_right.y = @max(bottom_right.y, p.y);
     }
 
     const border = 1;
     var y = top_left.y - border;
-    while (y < bottom_right.y + border + 1): (y+=1) {
+    while (y < bottom_right.y + border + 1) : (y += 1) {
         var x = top_left.x - border;
-        while (x < bottom_right.x + border + 1): (x+=1) {
-            if (points.contains(Point{.x = x, .y = y})) {
+        while (x < bottom_right.x + border + 1) : (x += 1) {
+            if (points.contains(Point{ .x = x, .y = y })) {
                 print("#", .{});
+            } else if (sand.contains(Point{ .x = x, .y = y })) {
+                print("o", .{});
             } else {
                 print(".", .{});
             }
