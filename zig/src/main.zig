@@ -50,12 +50,31 @@ pub fn main() !void {
             return;
         };
     }
+    
+    // Day 2: Pragmatic approach:
+    var max_y: i32 = 0;
+    var ki = walls.keyIterator();
+    while (ki.next()) |w| {
+       max_y = @max(w.y, max_y);
+    }
+    max_y += 2;
+    const infinite_size = 30;
+    var x: i32 = 500-infinite_size;
+    while (x < 500+infinite_size): (x+=1) {
+        try walls.put(Point{.x = x, .y = max_y}, {});
+    }
 
     // print("LEVEL\n", .{});
     // draw(&walls, &sand);
 
     while (true) {
         simulate(&walls, &sand) catch break;
+
+        // Day 2: Blocked entry?
+        if (sand.contains(Point{.x=500, .y=0})) {
+            break;
+        }
+
         // draw(&walls, &sand);
     }
 
@@ -68,7 +87,7 @@ const ComputationError = error{InfiniteFall};
 fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) ComputationError!void {
     var pos = Point{ .x = 500, .y = 0 };
 
-    const threshold = 1_000;
+    // const threshold = 1_000;
     while (true) {
         var move = nextMove(pos, walls, sand);
         if (move) |np| {
@@ -76,9 +95,9 @@ fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, 
         } else {
             break;
         }
-        if (pos.y > threshold) {
-            return ComputationError.InfiniteFall;
-        }
+        // if (pos.y > threshold) {
+        //     return ComputationError.InfiniteFall;
+        // }
     }
 
     // Ignoring out of memory. Fix this by combining error classes.
