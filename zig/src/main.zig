@@ -58,7 +58,7 @@ pub fn main() !void {
        max_y = @max(w.y, max_y);
     }
     max_y += 2;
-    const infinite_size = 30;
+    const infinite_size = 30_000;
     var x: i32 = 500-infinite_size;
     while (x < 500+infinite_size): (x+=1) {
         try walls.put(Point{.x = x, .y = max_y}, {});
