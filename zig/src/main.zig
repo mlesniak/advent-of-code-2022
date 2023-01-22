@@ -82,9 +82,11 @@ pub fn main() !void {
 }
 
 // Error class. Not totally perfect, since it's not an error per se.
+// Can be mitigated in part 1 by simply returning a bool describing
+// if the sand grain has been falling over the threshold.
 const ComputationError = error{InfiniteFall};
 
-fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) ComputationError!void {
+fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) std.mem.Allocator.Error!void {
     var pos = Point{ .x = 500, .y = 0 };
 
     // const threshold = 1_000;
@@ -100,8 +102,7 @@ fn simulate(walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, 
         // }
     }
 
-    // Ignoring out of memory. Fix this by combining error classes.
-    sand.put(pos, {}) catch undefined;
+    try sand.put(pos, {});
 }
 
 fn nextMove(pos: Point, walls: *std.AutoHashMap(Point, void), sand: *std.AutoHashMap(Point, void)) ?Point {
