@@ -18,8 +18,8 @@ data class Sensor(
 class Day15Test {
     @Test
     fun part1() {
-        // val row = 10
-        val row = 2000000
+        // val row = 11
+        // val row = 2000000
 
         val sensors = Files
             .readAllLines(Path.of("15.txt"))
@@ -27,50 +27,66 @@ class Day15Test {
             .map(::parseSensor)
         // sensors.forEach(::println)
 
-        val covered = mutableSetOf<Int>()
         // you'd like to count the number of positions a beacon cannot possibly exist.
         // Use sensors with max manhattan distance.
 
         val minx = sensors.minOfOrNull { it.pos.x - it.manhattanDistance }!!
         val maxx = sensors.maxOfOrNull { it.pos.x + it.manhattanDistance }!!
-        println(minx)
-        println(maxx)
+        // println(minx)
+        // println(maxx)
+        val miny = sensors.minOfOrNull { it.pos.y - it.manhattanDistance }!!
+        val maxy = sensors.maxOfOrNull { it.pos.y + it.manhattanDistance }!!
 
-        for (x in minx..maxx) {
-            // println("x=$x")
-            // A beacon can't exist, if the manhanttan distance of x,y and a potential
-            // sensor is lower or equal than the manhattan distance of that sensor.
-            val potentialPos = Pos(x, row)
-            // If all sensors have a manhattan distance larger than the pos, the pos
-            // can't possibly be a beacon.
-            val beaconPossible = sensors.all { s ->
-                val potentialBaconDistance = s.pos.manhattanDistance(potentialPos)
-                // println("  s=$s md=$potentialBaconDistance")
-                s.manhattanDistance < potentialBaconDistance
+        val potentials = mutableListOf<Pos>()
+        for (row in miny..maxy) {
+            // println("\n\n--- ROW $row")
+            println(row)
+            val possibleBeacon = mutableSetOf<Int>()
+            for (x in minx..maxx) {
+                // println("x=$x")
+                // A beacon can't exist, if the manhanttan distance of x,y and a potential
+                // sensor is lower or equal than the manhattan distance of that sensor.
+                val potentialPos = Pos(x, row)
+                // If all sensors have a manhattan distance larger than the pos, the pos
+                // can't possibly be a beacon.
+                val beaconPossible = sensors.all { s ->
+                    val potentialBaconDistance = s.pos.manhattanDistance(potentialPos)
+                    // println("  s=$s md=$potentialBaconDistance")
+                    s.manhattanDistance < potentialBaconDistance
+                }
+                if (beaconPossible) {
+                    // println(" found $x")
+                    possibleBeacon += x
+                }
             }
-            if (!beaconPossible) {
-                // println(" found $x")
-                covered += x
+
+            // Remove beacons itself.
+            sensors.forEach { s ->
+                if (s.beacon.y == row) {
+                    possibleBeacon -= s.beacon.x
+                }
+                if (s.pos.y == row) {
+                    possibleBeacon -= s.pos.x
+                }
+            }
+
+            // println("Beacon can't exist at:")
+            // covered.toList().sorted().forEach(::println)
+            possibleBeacon.forEach { pot ->
+               potentials += Pos(pot, row)
             }
         }
 
-        // Remove beacons itself.
-        sensors.forEach { s ->
-            if (s.beacon.y == row) {
-                covered -= s.beacon.x
-            }
-            if (s.pos.y == row) {
-                covered -= s.pos.x
-            }
+        val m = 20
+        val candidates = potentials.filter { pos ->
+            pos.x in 0..m && pos.y in 0..m
         }
-
-        // println("Beacon can't exists at:")
-        // covered.toList().sorted().forEach(::println)
-        println("Size: ${covered.size}")
+        candidates.forEach(::println)
     }
 
     @Test
     fun part2() {
+        // See part 1 -- accidentally used part 1 method as well, oops.
     }
 
     private fun parseSensor(line: String): Sensor {
