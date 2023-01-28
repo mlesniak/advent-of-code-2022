@@ -78,10 +78,14 @@ class Day15Test {
         }
 
         val m = 20
+        // val m = 4000000
         val candidates = potentials.filter { pos ->
             pos.x in 0..m && pos.y in 0..m
         }
         candidates.forEach(::println)
+        val f = candidates[0]
+        val res = f.x * 4000000 + f.y
+        println(res)
     }
 
     @Test
