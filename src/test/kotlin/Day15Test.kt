@@ -3,17 +3,12 @@ package com.mlesniak.changeme
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.math.absoluteValue
 
 data class Sensor(
     val pos: Pos,
     val beacon: Pos,
 ) {
-    val manhattanDistance: Int;
-
-    init {
-        manhattanDistance = (pos.x - beacon.x).absoluteValue + (pos.y - beacon.y).absoluteValue
-    }
+    val manhattanDistance: Int = pos.manhattanDistance(beacon);
 
     override fun toString(): String {
         return "Sensor(pos=$pos, beacon=$beacon, manhattanDistance=$manhattanDistance)"
@@ -31,29 +26,42 @@ class Day15Test {
         // sensors.forEach(::println)
 
         val covered = mutableSetOf<Int>()
-        sensors.forEach { s ->
-            // if (s.pos.y > row && s.pos.y - s.manhattanDistance > row) {
-            //     return@forEach
-            // }
-            // if (s.pos.y < row && s.pos.y + s.manhattanDistance < row) {
-            //     return@forEach
-            // }
+        // you'd like to count the number of positions a beacon cannot possibly exist.
+        // Use sensors with max manhattan distance.
 
-            // val remaining =
-            //     if (s.pos.y > row) {
-            //         row - (s.pos.y - (s.manhattanDistance))
-            //     } else {
-            //         (s.pos.y + (s.manhattanDistance)) - row
-            //     } - 1
+        val minx = sensors.minOfOrNull { it.pos.x - it.manhattanDistance }!!
+        val maxx = sensors.maxOfOrNull { it.pos.x + it.manhattanDistance }!!
+        println(minx)
+        println(maxx)
 
-            // println("$s $remaining")
-            // for (xn in (s.pos.x - remaining)..(s.pos.x + remaining)) {
-            //     println("  $xn")
-            //     covered += xn
-            // }
+        for (x in minx..maxx) {
+            // println("x=$x")
+            // A beacon can't exist, if the manhanttan distance of x,y and a potential
+            // sensor is lower or equal than the manhattan distance of that sensor.
+            val potentialPos = Pos(x, row)
+            // If all sensors have a manhattan distance larger than the pos, the pos
+            // can't possibly be a beacon.
+            val beaconPossible = sensors.all { s ->
+                val potentialBaconDistance = s.pos.manhattanDistance(potentialPos)
+                // println("  s=$s md=$potentialBaconDistance")
+                s.manhattanDistance < potentialBaconDistance
+            }
+            if (!beaconPossible) {
+                // println(" found $x")
+                covered += x
+            }
         }
 
-        covered.toList().sorted().forEach(::println)
+        // Remove beacons itself.
+        sensors.forEach { s ->
+            if (s.beacon.y != row) {
+                return@forEach
+            }
+            covered -= s.beacon.x
+        }
+
+        // println("Beacon can't exists at:")
+        // covered.toList().sorted().forEach(::println)
         println("Size: ${covered.size}")
     }
 

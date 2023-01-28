@@ -3,8 +3,12 @@ package com.mlesniak.changeme
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.math.absoluteValue
 
-data class Pos(val x: Int, val y: Int)
+data class Pos(val x: Int, val y: Int) {
+    fun manhattanDistance(p: Pos) =
+        (x - p.x).absoluteValue + (y - p.y).absoluteValue
+}
 
 data class BfsState(
     val pos: Pos,
