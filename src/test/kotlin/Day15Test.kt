@@ -18,10 +18,12 @@ data class Sensor(
 class Day15Test {
     @Test
     fun part1() {
-        val row = 10
+        // val row = 10
+        val row = 2000000
 
         val sensors = Files
             .readAllLines(Path.of("15.txt"))
+            .filter(String::isNotBlank)
             .map(::parseSensor)
         // sensors.forEach(::println)
 
@@ -54,10 +56,12 @@ class Day15Test {
 
         // Remove beacons itself.
         sensors.forEach { s ->
-            if (s.beacon.y != row) {
-                return@forEach
+            if (s.beacon.y == row) {
+                covered -= s.beacon.x
             }
-            covered -= s.beacon.x
+            if (s.pos.y == row) {
+                covered -= s.pos.x
+            }
         }
 
         // println("Beacon can't exists at:")
