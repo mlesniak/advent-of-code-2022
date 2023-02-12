@@ -131,13 +131,23 @@ class Day15Test {
         // println(rows[row]!!.size)
         // println(rows[row])
 
+        // val maxRow = 4_000_000
         val maxRow = 20
-        rows
-            .filter { (k, _) -> k <= maxRow && k >= 0 }
-            .filter { (k,v) -> v.count() > 1 }.forEach { (k,v) ->
-            println("=== $k\n$v")
-        }
+        val scores = rows
+            .filter { (k, _) -> k in 0..maxRow }
+            .filter { (k, v) -> v.count() > 1 }
+            // .forEach { (k, v) ->
+            //     println("=== $k\n$v")
+            // }
+            .map { (k,v) ->
+                println(v)
+                v.gap * 4000000 + k
+            }
+        println(scores)
 
+        // === 2650264
+        // -219026..2638484
+        // 2638486..4541698
     }
 
     // Can be part of the sensor class.
@@ -245,6 +255,11 @@ class Day15Test {
 // Memory efficient custom range operator
 class R {
     private val ranges = mutableListOf<IntRange>()
+
+    val gap: Int
+        get() {
+            return ranges[0].last +  1
+        }
 
     val first: Int
         get() {
