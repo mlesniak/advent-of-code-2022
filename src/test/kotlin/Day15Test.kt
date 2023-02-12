@@ -3,6 +3,7 @@ package com.mlesniak.changeme
 import org.junit.jupiter.api.Test
 import java.lang.Integer.max
 import java.lang.Integer.min
+import java.math.BigDecimal
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.math.absoluteValue
@@ -131,8 +132,8 @@ class Day15Test {
         // println(rows[row]!!.size)
         // println(rows[row])
 
-        // val maxRow = 4_000_000
-        val maxRow = 20
+        val maxRow = 4_000_000
+        // val maxRow = 20
         val scores = rows
             .filter { (k, _) -> k in 0..maxRow }
             .filter { (k, v) -> v.count() > 1 }
@@ -140,8 +141,9 @@ class Day15Test {
             //     println("=== $k\n$v")
             // }
             .map { (k,v) ->
-                println(v)
-                v.gap * 4000000 + k
+                println("$k $v")
+                val r = BigDecimal(v.gap) * BigDecimal(4_000_000) + BigDecimal(k)
+                r
             }
         println(scores)
 
