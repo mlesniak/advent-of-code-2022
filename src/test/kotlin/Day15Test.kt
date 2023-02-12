@@ -5,6 +5,7 @@ import java.lang.Integer.max
 import java.lang.Integer.min
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.math.absoluteValue
 import kotlin.test.assertEquals
 
 data class Sensor(
@@ -102,15 +103,45 @@ class Day15Test {
             .readAllLines(Path.of("15.txt"))
             .filter(String::isNotBlank)
             .map(::parseSensor)
-        // sensors.forEach(::println)
 
-        val a = 10..20
-        val b = 25..30
-        val r = R().apply {
-            add(a)
-            add(b)
+        val rows = mutableMapOf<Int, R>()
+
+        // For every sensor, collect all reachable rows.
+        // For each reachable row, collect ranges
+        sensors.forEach { sensor ->
+            // println("--- $sensor")
+            val potRows = reachableRows(sensor)
+            potRows.forEach { row ->
+                val covered = sensorCovered(sensor, row)
+                val cr = rows[row] ?: R()
+                cr.add(covered)
+                rows[row] = cr
+                // println("$row: $covered")
+            }
         }
-        println(r)
+
+        // println(rows.size)
+        // rows.forEach { (row, ranges) ->
+        //     println("\n*** $row ***")
+        //     println(ranges)
+        // }
+        val row = 10
+        println("row=$row")
+        println(rows[row]!!.size)
+        println(rows[row])
+    }
+
+    // Can be part of the sensor class.
+    private fun sensorCovered(sensor: Sensor, row: Int): IntRange {
+        val delta = ((sensor.pos.y - row).absoluteValue - sensor.manhattanDistance).absoluteValue
+        val x = sensor.pos.x
+        return (x - delta)..(x + delta)
+    }
+
+    private fun reachableRows(sensor: Sensor): IntRange {
+        val y = sensor.pos.y
+        val md = sensor.manhattanDistance
+        return (y - md)..(y + md)
     }
 
     private fun parseSensor(line: String): Sensor {
@@ -218,8 +249,13 @@ class R {
             return ranges[0].last
         }
 
+    val size: Int
+        get() {
+            assert(ranges.size == 1)
+            return last - first
+        }
+
     fun add(r: IntRange) {
-        println("Adding $r")
         if (ranges.isEmpty()) {
             ranges += r
             return
@@ -238,7 +274,7 @@ class R {
                 for (j in i + 1 until ranges.size) {
                     val r1 = ranges[i]
                     val r2 = ranges[j]
-                    println("Comparing $i=$r1 and $j=$r2")
+                    // println("Comparing $i=$r1 and $j=$r2")
                     val k = combine(r1, r2)
                     if (k.size == 1) {
                         rep = true
