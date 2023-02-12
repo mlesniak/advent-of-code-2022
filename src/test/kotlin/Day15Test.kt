@@ -125,7 +125,8 @@ class Day15Test {
         //     println("\n*** $row ***")
         //     println(ranges)
         // }
-        val row = 10
+        val row = 2_000_000
+        // val row = 10
         println("row=$row")
         println(rows[row]!!.size)
         println(rows[row])
