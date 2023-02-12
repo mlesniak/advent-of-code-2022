@@ -125,11 +125,19 @@ class Day15Test {
         //     println("\n*** $row ***")
         //     println(ranges)
         // }
-        val row = 2_000_000
-        // val row = 10
-        println("row=$row")
-        println(rows[row]!!.size)
-        println(rows[row])
+        // val row = 2_000_000
+        // // val row = 10
+        // println("row=$row")
+        // println(rows[row]!!.size)
+        // println(rows[row])
+
+        val maxRow = 20
+        rows
+            .filter { (k, _) -> k <= maxRow && k >= 0 }
+            .filter { (k,v) -> v.count() > 1 }.forEach { (k,v) ->
+            println("=== $k\n$v")
+        }
+
     }
 
     // Can be part of the sensor class.
