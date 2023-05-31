@@ -17,6 +17,7 @@ data class State(
         val releasingPressure = openValves.sumOf(Valve::rate)
 
         return """
+            
             == Minute $minute ==
             Current $current
             Open    ${openValves.map(Valve::name)}
@@ -32,6 +33,8 @@ data class State(
     }
 
     fun pass(): State {
+        print()
+        println("Pass")
         return this.copy(
             minute = minute + 1,
             sumReleased = sumReleased + releasedPressure,
@@ -39,7 +42,8 @@ data class State(
     }
 
     fun open(): State {
-        println("$minute Opening $current -> $releasedPressure")
+        print()
+        println("Opening $current")
         return this.copy(
             valves = valves,
             current = current,
@@ -51,7 +55,8 @@ data class State(
     }
 
     fun move(name: String): State {
-        println("$minute Move to $name -> $releasedPressure")
+        print()
+        println("Moving to $name")
         return this.copy(
             valves = valves,
             current = name,
@@ -104,6 +109,7 @@ class Day16Test {
             .move("II")
             .move("JJ")
             .open()
+            .move("II")
             .move("AA")
             .move("DD")
             .move("EE")
@@ -118,7 +124,6 @@ class Day16Test {
             .move("DD")
             .move("CC")
             .open()
-            .pass()
             .pass()
             .pass()
             .pass()
