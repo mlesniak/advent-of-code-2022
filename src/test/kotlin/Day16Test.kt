@@ -91,45 +91,46 @@ data class Valve(
 }
 
 class Day16Test {
+    private val startingValve = "AA"
+
     @Test
     fun part1() {
-        val startingValve = "AA"
         val valves = parseInput()
-        // valves.values.forEach(::println)
+        valves.values.forEach(::println)
 
-        val initialState = State(valves, startingValve)
-
-        initialState
-            .move("DD")
-            .open()
-            .move("CC")
-            .move("BB")
-            .open()
-            .move("AA")
-            .move("II")
-            .move("JJ")
-            .open()
-            .move("II")
-            .move("AA")
-            .move("DD")
-            .move("EE")
-            .move("FF")
-            .move("GG")
-            .move("HH")
-            .open()
-            .move("GG")
-            .move("FF")
-            .move("EE")
-            .open()
-            .move("DD")
-            .move("CC")
-            .open()
-            .pass()
-            .pass()
-            .pass()
-            .pass()
-            .pass()
-            .print()
+        // val initialState = State(valves, startingValve)
+        //
+        // initialState
+        //     .move("DD")
+        //     .open()
+        //     .move("CC")
+        //     .move("BB")
+        //     .open()
+        //     .move("AA")
+        //     .move("II")
+        //     .move("JJ")
+        //     .open()
+        //     .move("II")
+        //     .move("AA")
+        //     .move("DD")
+        //     .move("EE")
+        //     .move("FF")
+        //     .move("GG")
+        //     .move("HH")
+        //     .open()
+        //     .move("GG")
+        //     .move("FF")
+        //     .move("EE")
+        //     .open()
+        //     .move("DD")
+        //     .move("CC")
+        //     .open()
+        //     .pass()
+        //     .pass()
+        //     .pass()
+        //     .pass()
+        //     .pass()
+        //     .print()
     }
 
     private fun parseInput(): Map<String, Valve> {
@@ -151,9 +152,19 @@ class Day16Test {
 
         valves.values.forEach { valve ->
             connections[valve.name]!!.forEach { valve.add(valves[it]!!) }
-            valve.lock()
         }
-        return valves
+
+        valves.values.forEach { valve ->
+            valve
+                .connectionsTo
+                .filter { n -> n.rate == 0 }
+                .forEach { n ->
+                    valve.connectionsTo.remove(n)
+                    n.connectionsTo.forEach { c -> valve.add(c) }
+                }
+        }
+
+        return valves.filter { it.value.rate > 0 || it.key == startingValve }
     }
 
     @Test
