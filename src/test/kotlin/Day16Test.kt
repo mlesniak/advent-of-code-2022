@@ -160,7 +160,9 @@ class Day16Test {
                 .filter { n -> n.rate == 0 }
                 .forEach { n ->
                     valve.connectionsTo.remove(n)
-                    n.connectionsTo.forEach { c -> valve.add(c) }
+                    n.connectionsTo
+                        .filter { c -> c.name != valve.name }
+                        .forEach { c -> valve.add(c) }
                 }
         }
 
