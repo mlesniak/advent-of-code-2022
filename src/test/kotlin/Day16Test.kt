@@ -28,22 +28,17 @@ data class State(
         """.trimIndent()
     }
 
+    fun nextStates(): List<State> {
+        val neighbors = valves[current]!!.connectionsTo
+        return neighbors.map { move(it.name) } + open()
+    }
+
     fun print(): State {
         println(this)
         return this
     }
 
-    fun nextStates(): List<State> {
-        if (valves[current] == null) {
-            println("XXX No valve for $current")
-        }
-        val neighbors = valves[current]!!.connectionsTo
-        return neighbors.map { move(it.name) } + open()
-    }
-
     fun pass(): State {
-        print()
-        println("Pass")
         return this.copy(
             minute = minute + 1,
             sumReleased = sumReleased + releasedPressure,
@@ -78,15 +73,9 @@ data class Valve(
     val rate: Int,
 ) {
     val connectionsTo: MutableSet<Valve> = mutableSetOf()
-    private var locked = false
 
     fun add(v: Valve) {
-        check(!locked)
         connectionsTo.add(v)
-    }
-
-    fun lock() {
-        locked = true
     }
 
     override fun toString(): String {
@@ -101,7 +90,6 @@ class Day16Test {
     @Test
     fun part1() {
         val valves = parseInput()
-        println("Initial valves")
         valves.values.forEach(::println)
     }
 
@@ -126,29 +114,6 @@ class Day16Test {
             connections[valve.name]!!.forEach { valve.add(valves[it]!!) }
         }
 
-        // TODO(mlesniak) Removal does not work correctly.
-        // // Hardcore recursive approach.
-        // var replaced = true
-        // while (replaced) {
-        //     replaced = false
-        //     valves.values.forEach { valve ->
-        //         val tmp = valve
-        //             .connectionsTo
-        //             .filter { n -> n.rate == 0 }
-        //         if (tmp.isNotEmpty()) {
-        //             replaced = true
-        //         }
-        //
-        //         tmp.forEach { n ->
-        //             valve.connectionsTo.remove(n)
-        //             n.connectionsTo
-        //                 .filter { c -> c.name != valve.name }
-        //                 .forEach { c -> valve.add(c) }
-        //         }
-        //     }
-        // }
-        //
-        // return valves.filter { it.value.rate > 0 || it.key == startingValve }
         return valves
     }
 
@@ -156,36 +121,3 @@ class Day16Test {
     fun part2() {
     }
 }
-
-//
-// initialState
-//     .move("DD")
-//     .open()
-//     .move("CC")
-//     .move("BB")
-//     .open()
-//     .move("AA")
-//     .move("II")
-//     .move("JJ")
-//     .open()
-//     .move("II")
-//     .move("AA")
-//     .move("DD")
-//     .move("EE")
-//     .move("FF")
-//     .move("GG")
-//     .move("HH")
-//     .open()
-//     .move("GG")
-//     .move("FF")
-//     .move("EE")
-//     .open()
-//     .move("DD")
-//     .move("CC")
-//     .open()
-//     .pass()
-//     .pass()
-//     .pass()
-//     .pass()
-//     .pass()
-//     .print()
