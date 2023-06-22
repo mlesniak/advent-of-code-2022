@@ -5,81 +5,15 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Pattern
 
-data class State(
-    val valves: Map<String, Valve>,
-    val current: String,
-    val openValves: Set<Valve> = emptySet(),
-    val minute: Int = 1,
-    val releasedPressure: Int = 0,
-    val sumReleased: Int = 0,
-) {
-
-    override fun toString(): String {
-        val releasingPressure = openValves.sumOf(Valve::rate)
-
-        return """
-            
-            == Minute $minute ==
-            Current $current
-            Open    ${openValves.map(Valve::name)}
-            Press.  $releasingPressure
-            Avail.  ${valves[current]!!.connectionsTo.map(Valve::name)}
-            Sum     $sumReleased
-        """.trimIndent()
-    }
-
-    fun nextStates(): List<State> {
-        val neighbors = valves[current]!!.connectionsTo
-        return neighbors.map { move(it.name) } + open()
-    }
-
-    fun print(): State {
-        println(this)
-        return this
-    }
-
-    fun pass(): State {
-        return this.copy(
-            minute = minute + 1,
-            sumReleased = sumReleased + releasedPressure,
-        )
-    }
-
-    fun open(): State {
-        return this.copy(
-            valves = valves,
-            current = current,
-            openValves = openValves + valves[current]!!,
-            minute = minute + 1,
-            releasedPressure = releasedPressure + valves[current]!!.rate,
-            sumReleased = sumReleased + releasedPressure + valves[current]!!.rate
-        )
-    }
-
-    fun move(name: String): State {
-        return this.copy(
-            valves = valves,
-            current = name,
-            openValves = openValves,
-            minute = minute + 1,
-            releasedPressure = releasedPressure,
-            sumReleased = sumReleased + releasedPressure,
-        )
-    }
-}
 
 data class Valve(
     val name: String,
     val rate: Int,
 ) {
-    val connectionsTo: MutableSet<Valve> = mutableSetOf()
-
-    fun add(v: Valve) {
-        connectionsTo.add(v)
-    }
+    val connections: MutableSet<Valve> = mutableSetOf()
 
     override fun toString(): String {
-        val cons = connectionsTo.map { it.name }
+        val cons = connections.map { it.name }
         return "$name=${String.format("%2d", rate)} $cons)"
     }
 }
@@ -111,7 +45,7 @@ class Day16Test {
         }
 
         valves.values.forEach { valve ->
-            connections[valve.name]!!.forEach { valve.add(valves[it]!!) }
+            connections[valve.name]!!.forEach { valve.connections.add(valves[it]!!) }
         }
 
         return valves
