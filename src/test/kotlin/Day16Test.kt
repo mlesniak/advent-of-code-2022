@@ -5,15 +5,19 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Pattern
 
+data class Edge(
+    val cost: Int,
+    val to: Valve,
+)
 
 data class Valve(
     val name: String,
     val rate: Int,
 ) {
-    val connections: MutableSet<Valve> = mutableSetOf()
+    val connections: MutableSet<Edge> = mutableSetOf()
 
     override fun toString(): String {
-        val cons = connections.map { it.name }
+        val cons = connections.map { "${it.to.name}/${it.cost}" }
         return "$name=${String.format("%2d", rate)} $cons)"
     }
 }
@@ -23,8 +27,11 @@ class Day16Test {
 
     @Test
     fun part1() {
-        val valves = parseInput()
-        valves.values.forEach(::println)
+        val initialValves = parseInput()
+        initialValves.values.forEach(::println)
+
+        // TODO(mlesniak) Eliminate empty valves by using Floyd-Warshall algorithm.
+
     }
 
     private fun parseInput(): Map<String, Valve> {
@@ -45,7 +52,7 @@ class Day16Test {
         }
 
         valves.values.forEach { valve ->
-            connections[valve.name]!!.forEach { valve.connections.add(valves[it]!!) }
+            connections[valve.name]!!.forEach { valve.connections.add(Edge(1, valves[it]!!)) }
         }
 
         return valves
