@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Pattern
+import kotlin.math.max
 
 data class Edge(
     val cost: Int,
@@ -28,11 +29,52 @@ class Day16Test {
     @Test
     fun part1() {
         val initialValves = parseInput()
-        initialValves.values.forEach(::println)
+        // initialValves.values.forEach(::println)
 
-        // TODO(mlesniak) Eliminate empty valves by using Floyd-Warshall algorithm.
         val compressedValves = floydWarshall(initialValves)
         compressedValves.values.forEach(::println)
+
+        val result = compute(compressedValves, startingValve, 30, emptySet())
+        println(result)
+    }
+
+    // TODO(mlesniak) Add memoization later.
+    private fun compute(graph: Map<String, Valve>, current: String, timeLeft: Int, openedValves: Set<String>, ): Int {
+        // Compute released pressure when we do nothing.
+        val currentlyReleasedPressure = openedValves.sumOf { graph[it]!!.rate }
+        val releasedPressureUntilEnd = currentlyReleasedPressure * timeLeft
+
+        // For all reachable neighbors (i.e. those which are reachable withing the remaining time left),
+        // simulate moving to them, opening them, and then recursively calling compute. Pick the best one.
+        val reachableNeighbors =
+            graph[current]!!.connections
+                .filter { it.to.name !in openedValves }
+                // -1 since we need to open the valve after moving.
+                .filter { timeLeft - it.cost - 1 > 0 }
+                .map { it.to.name }
+
+        // Nothing reachable, so we are done.
+        if (reachableNeighbors.isEmpty()) {
+            return releasedPressureUntilEnd
+        }
+
+        val rate = graph[current]!!.rate
+        // println("current=$current, rate=$rate timeLeft=$timeLeft, openedValves=$openedValves, reachableNeighbors=$reachableNeighbors")
+
+        // For each neighbor, imagine that we moved there and opened its valve.
+        // Compute the maximum reachable pressure from its position recursively
+        // and pick the best one.
+        val reachableReleasedPressure = reachableNeighbors.maxOf { neighbor ->
+            val newOpenedValves = openedValves + neighbor
+            val distToNeighbor = graph[current]!!.connections.first { it.to.name == neighbor }.cost
+            val newTimeLeft = timeLeft - distToNeighbor - 1
+            val releasedPressureWhileMoving = currentlyReleasedPressure * (distToNeighbor + 1)
+            // println("  Moving to $neighbor, timeLeft=$newTimeLeft, openedValves=$newOpenedValves")
+            // println("  releasedPressureWhileMoving=$releasedPressureWhileMoving")
+            compute(graph, neighbor, newTimeLeft, newOpenedValves) + releasedPressureWhileMoving
+        }
+
+        return max(releasedPressureUntilEnd, reachableReleasedPressure)
     }
 
     // Used to compress the graph by removing all empty nodes and updating the distances.
