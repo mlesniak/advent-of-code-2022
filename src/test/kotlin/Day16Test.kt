@@ -39,7 +39,7 @@ class Day16Test {
     }
 
     // TODO(mlesniak) Add memoization later.
-    private fun compute(graph: Map<String, Valve>, current: String, timeLeft: Int, openedValves: Set<String>, ): Int {
+    private fun compute(graph: Map<String, Valve>, current: String, timeLeft: Int, openedValves: Set<String>): Int {
         // Compute released pressure when we do nothing.
         val currentlyReleasedPressure = openedValves.sumOf { graph[it]!!.rate }
         val releasedPressureUntilEnd = currentlyReleasedPressure * timeLeft
@@ -164,5 +164,27 @@ class Day16Test {
 
     @Test
     fun part2() {
+        val x = permutations((1..10).toSet())
+        println(x.size)
+        // println(x)
+    }
+
+    private fun <T> permutations(rest: Set<T>, current: Set<Set<T>> = setOf(emptySet())): Set<Set<T>> {
+        var t = mutableSetOf<T>()
+        t.addAll(rest)
+        var c = current
+
+        while (t.isNotEmpty()) {
+            val e = t.first()
+            val newCurrent = mutableSetOf<Set<T>>()
+            c.forEach { c ->
+                newCurrent += c + e
+                newCurrent += c
+            }
+            c = newCurrent
+            t.remove(e)
+        }
+
+        return c
     }
 }
