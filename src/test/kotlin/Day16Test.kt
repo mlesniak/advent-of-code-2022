@@ -29,8 +29,6 @@ class Day16Test {
     @Test
     fun part1() {
         val initialValves = parseInput()
-        // initialValves.values.forEach(::println)
-
         val compressedValves = floydWarshall(initialValves)
         compressedValves.values.forEach(::println)
 
@@ -164,11 +162,36 @@ class Day16Test {
 
     @Test
     fun part2() {
-        val x = permutations((1..10).toSet())
-        println(x.size)
+        // val x = permutations((1..10).toSet())
+        // println(x.size)
         // println(x)
+
+        val initialValves = parseInput()
+        val compressedValves = floydWarshall(initialValves)
+        compressedValves.values.forEach(::println)
+
+        // Compute all possible permutations of the valves.
+        val permutations = permutations(compressedValves.keys.filter { it != startingValve }.toSet())
+            .filter { it.size == compressedValves.size / 2 }
+
+
+        // For each permutation, define the person's potential valves
+        // and the elephant ones (the rest). Then compute the summed
+        // pressure they would release for this combination.
+        // Find the maximum value of these.
+        val max = permutations.maxOfOrNull { permutation ->
+            println("permutation=$permutation")
+            val otherPermutation = compressedValves.keys - permutation
+            val timeLeft = 26
+            val s1 = compute2(compressedValves, permutation, startingValve, timeLeft, emptySet())
+            val s2 = compute2(compressedValves, otherPermutation, startingValve, timeLeft, emptySet())
+            s1 + s2
+        }
+        println(max)
     }
 
+    // Initially recursive, but I assumed wrongly that we need way bigger sets.
+    // This is not true for the compressed graph 🙈.
     private fun <T> permutations(rest: Set<T>, current: Set<Set<T>> = setOf(emptySet())): Set<Set<T>> {
         var t = mutableSetOf<T>()
         t.addAll(rest)
@@ -186,5 +209,47 @@ class Day16Test {
         }
 
         return c
+    }
+
+    // Computation for part2 -- restrict the valves one is allowed to open.
+    // (Copy and Paste of part 1 with restriction to allowedValves)
+    private fun compute2(graph: Map<String, Valve>, allowedValves: Set<String>, current: String, timeLeft: Int, openedValves: Set<String>): Int {
+        // Compute released pressure when we do nothing.
+        val currentlyReleasedPressure = openedValves.sumOf { graph[it]!!.rate }
+        val releasedPressureUntilEnd = currentlyReleasedPressure * timeLeft
+
+        // For all reachable neighbors (i.e. those which are reachable withing the remaining time left),
+        // simulate moving to them, opening them, and then recursively calling compute. Pick the best one.
+        val reachableNeighbors =
+            graph[current]!!.connections
+                .filter { it.to.name !in openedValves }
+                // Only allow opening of permitted valves.
+                .filter { it.to.name in allowedValves }
+                // -1 since we need to open the valve after moving.
+                .filter { timeLeft - it.cost - 1 > 0 }
+                .map { it.to.name }
+
+        // Nothing reachable, so we are done.
+        if (reachableNeighbors.isEmpty()) {
+            return releasedPressureUntilEnd
+        }
+
+        val rate = graph[current]!!.rate
+        // println("current=$current, rate=$rate timeLeft=$timeLeft, openedValves=$openedValves, reachableNeighbors=$reachableNeighbors")
+
+        // For each neighbor, imagine that we moved there and opened its valve.
+        // Compute the maximum reachable pressure from its position recursively
+        // and pick the best one.
+        val reachableReleasedPressure = reachableNeighbors.maxOf { neighbor ->
+            val newOpenedValves = openedValves + neighbor
+            val distToNeighbor = graph[current]!!.connections.first { it.to.name == neighbor }.cost
+            val newTimeLeft = timeLeft - distToNeighbor - 1
+            val releasedPressureWhileMoving = currentlyReleasedPressure * (distToNeighbor + 1)
+            // println("  Moving to $neighbor, timeLeft=$newTimeLeft, openedValves=$newOpenedValves")
+            // println("  releasedPressureWhileMoving=$releasedPressureWhileMoving")
+            compute2(graph, allowedValves, neighbor, newTimeLeft, newOpenedValves) + releasedPressureWhileMoving
+        }
+
+        return max(releasedPressureUntilEnd, reachableReleasedPressure)
     }
 }
