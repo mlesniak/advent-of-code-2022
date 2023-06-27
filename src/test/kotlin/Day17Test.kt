@@ -1,6 +1,8 @@
 package com.mlesniak.changeme
 
 import org.junit.jupiter.api.Test
+import java.nio.file.Files
+import java.nio.file.Path
 
 enum class Movement {
     Left,
@@ -17,9 +19,12 @@ enum class Movement {
     }
 }
 
-class Area {
+class Area(
+    private val movements: List<Movement>
+) {
     private val grid = mutableListOf<String>()
     private val emptyLine = ".".repeat(7)
+    private var movementIndex = 0
 
     fun debug(rows: List<String>) {
         rows.forEach {
@@ -28,12 +33,24 @@ class Area {
     }
 
     fun add(block: List<String>) {
-        repeat(block.size + 3) {
+        // "its bottom edge is three units above the highest rock in the room."
+        // Find the highest rock's position to determine how many empty lines we
+        // need to add (if any?).
+        val highestRock = grid.indexOfFirst { it.contains('#') }
+        val emptyLines = 3 - highestRock.let { if (it < 0) 0 else it }
+
+        repeat(emptyLines) {
+            grid.add(0, emptyLine)
+        }
+        repeat(block.size) {
             grid.add(0, emptyLine)
         }
 
         val x = 2
         val y = 0
+        println("before simulation ")
+        println(this)
+        println("end")
         simulate(block, x, y)
     }
 
@@ -81,12 +98,12 @@ class Area {
 class Day17Test {
     @Test
     fun part1() {
-        // val movements = Files.readString(Path.of("17.txt"))
-        //     .map { Movement.valueOf(it) }
-        //     .also { println(it) }
+        val movements = Files.readString(Path.of("17.txt"))
+            .map { Movement.valueOf(it) }
+            .also { println(it) }
 
         val emptyLine = ".".repeat(7)
-        val area = Area()
+        val area = Area(movements)
         // area.debug(listOf(emptyLine))
         // area.debug(listOf("..##..."))
         // area.debug(listOf("......."))
