@@ -54,14 +54,47 @@ class Area(
         simulate(block, x, y)
     }
 
+    // TODO(mlesniak) add steam simulation.
     private fun simulate(block: List<String>, x: Int, y: Int) {
+        // Check for steam.
+        val steamOperand = movements[movementIndex]
+        movementIndex = movementIndex.inc() % movements.size
+        var xn = when (steamOperand) {
+            Movement.Left -> x - 1
+            Movement.Right -> x + 1
+        }
+        if (!validate(y, block, xn)) {
+            // Unable to move there, use old value
+            xn = x
+        }
+
+        if (validate(y, block, xn)) {
+            fixBlock(block, y, xn)
+            return
+        }
+
+        simulate(block, xn, y + 1)
+    }
+
+    /**
+     * true if the block should be placed, false otherwise (i.e. we should continue).
+     */
+    private fun validate(y: Int, block: List<String>, x: Int): Boolean {
+        // Check if this position is occupied (by walls or another block).
+        if (x < 0) {
+            return false
+        }
+        block.forEach { line ->
+            if (x + line.length > 7) {
+                return false
+            }
+        }
+
         // Check if we are at the bottom.
         if (y + block.size == grid.size) {
             // Fix block.
-            block.forEachIndexed { index, s ->
-                grid[y + index] = grid[y + index].replaceRange(x, x + s.length, s.replace('@', '#'))
-            }
-            return
+            // fixBlock(block, y, x)
+            return true
         }
         // Check if the bottom line of the block collides with an existing block.
         val bottomLine = block.last()
@@ -81,13 +114,16 @@ class Area(
             }
         }
         if (collided) {
-            block.forEachIndexed { index, s ->
-                grid[y + index] = grid[y + index].replaceRange(x, x + s.length, s.replace('@', '#'))
-            }
-            return
+            // fixBlock(block, y, x)
+            return true
         }
+        return false
+    }
 
-        simulate(block, x, y + 1)
+    private fun fixBlock(block: List<String>, y: Int, x: Int) {
+        block.forEachIndexed { index, s ->
+            grid[y + index] = grid[y + index].replaceRange(x, x + s.length, s.replace('@', '#'))
+        }
     }
 
     override fun toString(): String {
