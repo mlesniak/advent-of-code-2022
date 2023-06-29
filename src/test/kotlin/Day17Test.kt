@@ -159,12 +159,13 @@ class Day17Test {
             var block = Block(2, nextY, nextBlock)
             blockIndex = (blockIndex + 1) % blocks.size
 
-            // println("------------------ $numRocks")
+            println("------------------ $numRocks")
             // println("grid size = ${area.grid.size}")
             // val a = area.copy()
             // a.store(block)
             // a.print()
             // println()
+            // Thread.sleep(2000)
 
             while (true) {
                 // Move left or right.
@@ -187,8 +188,8 @@ class Day17Test {
 
             area.store(block)
         }
+        println(area.nextY()+1)
         area.print()
         // We start counting at 0.
-        println(area.nextY()+1)
     }
 }
