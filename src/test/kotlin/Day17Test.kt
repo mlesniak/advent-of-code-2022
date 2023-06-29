@@ -19,44 +19,66 @@ enum class Movement {
     }
 }
 
+data class Block(
+    val x: Int,
+    val y: Int,
+    val rows: List<String>,
+) {
+    fun apply(movement: Movement): Block {
+        return when (movement) {
+            Movement.Left -> copy(x = x - 1)
+            Movement.Right -> copy(x = x + 1)
+        }
+    }
+
+    fun down(): Block {
+        return copy(y = y + 1)
+    }
+}
+
+
+class Area {
+    private val width = 7
+    private val grid = mutableListOf<String>()
+
+    fun validate(block: Block): Boolean {
+        return true
+    }
+
+    fun store(block: Block) {
+        while (grid.size <= block.y ) {
+            grid.add(".".repeat(width))
+        }
+        block.rows.forEachIndexed { index, s ->
+            val s2 = s.replace("@", "#")
+            grid[block.y - index] = grid[block.y - index].replaceRange(block.x, block.x + s2.length, s2)
+        }
+    }
+
+    fun print() {
+        grid.reversed().forEachIndexed { idx, row: String ->
+            val k = String.format("%2d", grid.size - idx - 1)
+            println("$k $row") }
+    }
+}
+
 class Day17Test {
     @Test
     fun part1() {
         val movements = Files.readString(Path.of("17.txt"))
             .map { Movement.valueOf(it) }
-            .also { println(it) }
+            // .also { println(it) }
 
-        val grid = mutableListOf<String>()
-        val block = """
-            @@@@    
-            @@@@
-        """.trimIndent().split("\n")
-        // val block = listOf<String>("@@@@")
-        var movement = 0
-        // grid.add("...##..")
-        // grid.add("...##..")
-        step(grid, block, movements, movement)
-    }
+        val area = Area()
 
-    // Stateless function.
-    // Returns true if we can continue, and also the new movement index.
-    // If false is returned, the block is already finalized (by switching from
-    // @ to # and storing it in the grid).
-    fun step(grid: List<String>, block: List<String>, movements: List<Movement>, movement: Int): Pair<Boolean, Int> {
-        val x = 2
-        // Determine initial block position (three rows from the top until the next block counting
-        // from the bottom). We have definetely some space at the bottom of the block now.
-        val y = grid.indexOfLast { it.contains("#") } + 3 + block.size
-
-        // Check if we are at the bottom.
-
-        // Until we can not move further:
-        // Simulate steam.
-        // Simulate falling down.
-        // Then: fix the block into the grid.
-    }
-
-    @Test
-    fun part2() {
+        val block = Block(0, 0, listOf("@@@@")).also {
+            area.store(it)
+            area.print()
+        }
+        println("---")
+        Block(0, 4, listOf("@@@@", ".@@")).also {
+            area.store(it)
+            area.print()
+        }
     }
 }
