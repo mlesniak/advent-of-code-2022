@@ -112,7 +112,7 @@ class Area {
 
     fun print() {
         grid.reversed().forEachIndexed { idx, row: String ->
-            val k = String.format("%2d", grid.size - idx - 1)
+            val k = String.format("%2d", grid.size - idx)
             println("$k $row")
         }
     }
@@ -153,7 +153,7 @@ class Day17Test {
         var numRocks = 0
 
         val steps = 2022
-        while (numRocks++ <= steps) {
+        while (numRocks++ < steps) {
             val nextBlock = blocks[blockIndex]
             val nextY = area.nextY() + nextBlock.size + 3
             var block = Block(2, nextY, nextBlock)
@@ -189,6 +189,6 @@ class Day17Test {
         }
         area.print()
         // We start counting at 0.
-        println(area.nextY()-1)
+        println(area.nextY()+1)
     }
 }
