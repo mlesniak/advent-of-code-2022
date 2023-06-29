@@ -153,7 +153,7 @@ class Day17Test {
         var numRocks = 0
 
         val steps = 2022
-        while (numRocks++ < steps) {
+        while (numRocks++ <= steps) {
             val nextBlock = blocks[blockIndex]
             val nextY = area.nextY() + nextBlock.size + 3
             var block = Block(2, nextY, nextBlock)
@@ -187,7 +187,8 @@ class Day17Test {
 
             area.store(block)
         }
-        // area.print()
-        println(area.nextY() + 1)
+        area.print()
+        // We start counting at 0.
+        println(area.nextY()-1)
     }
 }
