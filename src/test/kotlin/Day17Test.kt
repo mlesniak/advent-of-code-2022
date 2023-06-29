@@ -153,13 +153,13 @@ class Day17Test {
         var numRocks = 0
 
         val steps = 2022
-        while (numRocks++ < steps) {
+        while (numRocks++ != steps) {
             val nextBlock = blocks[blockIndex]
             val nextY = area.nextY() + nextBlock.size + 3
             var block = Block(2, nextY, nextBlock)
             blockIndex = (blockIndex + 1) % blocks.size
 
-            println("------------------ $numRocks")
+            // println("------------------ $numRocks")
             // println("grid size = ${area.grid.size}")
             // val a = area.copy()
             // a.store(block)
