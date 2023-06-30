@@ -34,6 +34,10 @@ data class Block(
     fun down(): Block {
         return copy(y = y - 1)
     }
+
+    fun print() {
+        rows.forEach { println(it) }
+    }
 }
 
 class Area {
@@ -84,7 +88,7 @@ class Area {
                     return@forEachIndexed
                 }
                 // println("Checking char $c at ${block.x + xidx}, ${block.y + yidx}")
-                if (grid[block.y-yidx][block.x + xidx] == '#') {
+                if (grid[block.y - yidx][block.x + xidx] == '#') {
                     // println("Found rock at ${block.x + xidx}, ${block.y + yidx}")
                     return false
                 }
@@ -108,6 +112,11 @@ class Area {
             val s2 = s.replace("@", "#")
             grid[block.y - index] = grid[block.y - index].replaceRange(block.x, block.x + s2.length, s2)
         }
+
+        // Remove all empty rows from the end of the list.
+        while (grid.last().replace(".", "").isEmpty()) {
+            grid.removeLast()
+        }
     }
 
     fun print() {
@@ -117,7 +126,7 @@ class Area {
         }
     }
 
-    fun nextY(): Int {
+    fun highestBlockY(): Int {
         // Find topmost row with a rock.
         for (idx in grid.indices.reversed()) {
             if (grid[idx].contains("#")) {
@@ -155,21 +164,20 @@ class Day17Test {
         val steps = 2022
         while (numRocks++ != steps) {
             val nextBlock = blocks[blockIndex]
-            val nextY = area.nextY() + nextBlock.size + 3
+            val nextY = area.highestBlockY() + nextBlock.size + 3
             var block = Block(2, nextY, nextBlock)
             blockIndex = (blockIndex + 1) % blocks.size
 
-            // println("------------------ $numRocks")
-            // println("grid size = ${area.grid.size}")
-            // val a = area.copy()
-            // a.store(block)
-            // a.print()
-            // println()
-            // Thread.sleep(2000)
+            println("------------------ $numRocks")
+            val a = area.copy()
+            a.store(block)
+            a.print()
+            println()
+            Thread.sleep(5000)
 
             while (true) {
                 // Move left or right.
-                // println("Applying movement ${movements[movementIndex]}")
+                println("Applying movement ${movements[movementIndex]}")
                 val b1 = block.apply(movements[movementIndex])
                 movementIndex = (movementIndex + 1) % movements.size
                 if (area.isValid(b1)) {
@@ -188,8 +196,53 @@ class Day17Test {
 
             area.store(block)
         }
-        println(area.nextY()+1)
+        println(area.highestBlockY() + 1)
         area.print()
         // We start counting at 0.
     }
+
+    // Test case works, but algorithm is not correct for my specific input.
+    // Trying to figure out why...
+    @Test
+    fun bugfixhunt1() {
+        val area = Area()
+        val rows = blocks[0]
+
+        repeat(10) {
+            val y = area.highestBlockY() + rows.size + 3
+            var block = Block(2, y, rows)
+            while (true) {
+                var tmp = block
+                while (area.isValid(tmp)) {
+                    tmp = tmp.apply(Movement.Left)
+                }
+
+                tmp = block.down()
+                if (!area.isValid(tmp)) {
+                    area.store(block)
+                    break
+                }
+                block = tmp
+            }
+        }
+
+        area.print()
+    }
 }
+
+// ------------------ 12
+// 21 ...#...
+// 20 ..###..
+// 19 ...#...
+// 18 .......
+// 17 .......
+// 16 .......
+// 15 .####..
+// 14 ....###
+
+// ------------------ 13
+// 17 .....#.
+// 16 ....###
+// 15 .###.#.
+
+// the blank from the previous block is overriding the existing rock (line 15)
