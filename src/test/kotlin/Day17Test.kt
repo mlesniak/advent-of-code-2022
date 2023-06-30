@@ -110,7 +110,14 @@ class Area {
         }
         block.rows.forEachIndexed { index, s ->
             val s2 = s.replace("@", "#")
-            grid[block.y - index] = grid[block.y - index].replaceRange(block.x, block.x + s2.length, s2)
+            // grid[block.y - index] = grid[block.y - index].replaceRange(block.x, block.x + s2.length, s2)
+            s2.indices.forEach { s2idx ->
+                val x = block.x + s2idx
+                val y = block.y - index
+                if (grid[y][x] == '.') {
+                    grid[y] = grid[y].replaceRange(x, x + 1, s2[s2idx].toString())
+                }
+            }
         }
 
         // Remove all empty rows from the end of the list.
@@ -168,16 +175,16 @@ class Day17Test {
             var block = Block(2, nextY, nextBlock)
             blockIndex = (blockIndex + 1) % blocks.size
 
-            println("------------------ $numRocks")
-            val a = area.copy()
-            a.store(block)
-            a.print()
-            println()
-            Thread.sleep(5000)
+            // println("------------------ $numRocks")
+            // val a = area.copy()
+            // a.store(block)
+            // a.print()
+            // println()
+            // Thread.sleep(5000)
 
             while (true) {
                 // Move left or right.
-                println("Applying movement ${movements[movementIndex]}")
+                // println("Applying movement ${movements[movementIndex]}")
                 val b1 = block.apply(movements[movementIndex])
                 movementIndex = (movementIndex + 1) % movements.size
                 if (area.isValid(b1)) {
@@ -197,7 +204,7 @@ class Day17Test {
             area.store(block)
         }
         println(area.highestBlockY() + 1)
-        area.print()
+        // area.print()
         // We start counting at 0.
     }
 
@@ -226,6 +233,20 @@ class Day17Test {
             }
         }
 
+        area.print()
+    }
+
+    @Test
+    fun `fix empty space bug`() {
+        val area = Area()
+
+        val block = Block(1, 1, listOf("@@@@"))
+        area.store(block)
+        area.print()
+        println("------")
+
+        val block2 = Block(4, 3, listOf(".@.", "@@@", ".@."))
+        area.store(block2)
         area.print()
     }
 }
