@@ -48,16 +48,16 @@ class Day18Test {
         val sideCounts = input.associateWith { 6 }.toMutableMap()
         for (coordinate in input) {
             for (direction in listOf(-1, 1)) {
-                // Either x, y or z changes.
+                // Either x, y or z changes (but not multiple ones).
                 val x = Coordinate(coordinate.x + direction, coordinate.y, coordinate.z)
-                val y = Coordinate(coordinate.x, coordinate.y + direction, coordinate.z)
-                val z = Coordinate(coordinate.x, coordinate.y, coordinate.z + direction)
                 if (coordinates.contains(x.toString())) {
                     sideCounts[coordinate] = sideCounts[coordinate]!! - 1
                 }
+                val y = Coordinate(coordinate.x, coordinate.y + direction, coordinate.z)
                 if (coordinates.contains(y.toString())) {
                     sideCounts[coordinate] = sideCounts[coordinate]!! - 1
                 }
+                val z = Coordinate(coordinate.x, coordinate.y, coordinate.z + direction)
                 if (coordinates.contains(z.toString())) {
                     sideCounts[coordinate] = sideCounts[coordinate]!! - 1
                 }
