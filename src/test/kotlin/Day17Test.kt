@@ -200,6 +200,7 @@ class Day17Test {
 
         var cycleDectected = false
         var afterCycleCount = 0
+        // see main function
         var necessaryRocks = 795
 
         var lastHeight = -1
@@ -220,6 +221,7 @@ class Day17Test {
             }
 
             val cycleSize = area.isCycle()?.let {
+                println("Rocks dropped before cycle = $rocksDroppedBefore")
                 cycleDectected = true
                 println("Cycle detected at dropped rocks = $numRocks")
                 val cycleSize = it.toBigInteger()
@@ -389,8 +391,10 @@ class Day17Test {
 // the blank from the previous block is overriding the existing rock (line 15)
 
 fun main() {
-    val cycleAt = 151434.toBigInteger()
-    val steps = 1000000000.toBigInteger()
-    val remaining = steps % cycleAt
-    println(remaining)
+    val expectedRocks = "1000000000000".toBigInteger()
+    val cur = 217.toBigInteger()
+    val one = 1.toBigInteger()
+    // Adding the "one" since we want the height after the last rock is dropped.
+    val r = (expectedRocks - cur + one) - (expectedRocks - cur + one) / 1745.toBigInteger() * 1745.toBigInteger() + one
+    println(r)
 }
