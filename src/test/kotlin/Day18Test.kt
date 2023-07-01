@@ -35,12 +35,13 @@ data class SideCount(var count: Int, val neighbors: MutableSet<Coordinate>) {
 class Day18Test {
     @Test
     fun part1() {
-        val input = Files.readAllLines(Path.of("18.txt")).map(Coordinate.Companion::from)
+        val input = Files.readAllLines(Path.of("18.txt"))
+            .filter(String::isNotEmpty)
+            .map(Coordinate.Companion::from)
 
         // Use a set to store the coordinates using their string representation
         // for fast lookups of existing coordinates.
         val coordinates = input.map { it.toString() }.toSet()
-        println(coordinates)
 
         // For every cube, start with six open sides. We iterate over all sides and reduce
         // the number of open sides based on the existence of potential neighbors which
