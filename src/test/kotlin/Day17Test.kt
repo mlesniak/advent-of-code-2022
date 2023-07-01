@@ -143,6 +143,25 @@ class Area {
 
         return -1
     }
+
+    fun isCycle(): Int? {
+        if (grid.size < 10) {
+            return null
+        }
+
+        // Iteratively increase potential cycle size and check for a cycle.
+        val y = highestBlockY()
+        for (cycleSize in 10..y / 2) {
+            val first = grid.subList(y - cycleSize, y)
+            val second = grid.subList(y - cycleSize*2, y - cycleSize)
+            if (first == second) {
+                println("Cycle detected at cycleSize = $cycleSize with $y")
+                return cycleSize
+            }
+        }
+
+        return null
+    }
 }
 
 class Day17Test {
@@ -153,6 +172,107 @@ class Day17Test {
         listOf("@", "@", "@", "@"),
         listOf("@@", "@@"),
     )
+
+    @Test
+    fun `is this a cycle`() {
+        val area = Area()
+        area.grid.add("..###.")
+        area.grid.add("..####.")
+        area.grid.add("..###.")
+        area.grid.add("..####.")
+        area.print()
+        println(area.isCycle())
+    }
+
+    @Test
+    fun part2() {
+        val movements = Files.readString(Path.of("17.txt")).map { Movement.valueOf(it) }
+
+        val area = Area()
+        var movementIndex = 0
+        var blockIndex = 0
+        var numRocks = 0
+
+        val steps = 20000
+        var ms = System.currentTimeMillis()
+        var rocksDroppedBefore = 0
+        var rocksDroppedInCycle = 0
+
+        var cycleDectected = false
+        var afterCycleCount = 0
+        var necessaryRocks = 795
+
+        var lastHeight = -1
+        while (numRocks++ != steps) {
+            // For the example:
+            // We know the cycle size is 53 (for the test input).
+            // A cycle starts at row 79 and goes until 132. Let's
+            // count the number of dropped rocks in a cycle by looking
+            // at the highest y once we are at row 79.
+            if (area.highestBlockY() in 338..3089) {
+                rocksDroppedInCycle++
+                // if (lastHeight == -1) {
+                //     lastHeight = area.highestBlockY()
+                // }
+            }
+            if (area.highestBlockY() <= 337) {
+                rocksDroppedBefore++
+            }
+
+            val cycleSize = area.isCycle()?.let {
+                cycleDectected = true
+                println("Cycle detected at dropped rocks = $numRocks")
+                val cycleSize = it.toBigInteger()
+                val expectedRocks = "1000000000000".toBigInteger()
+                val highest = area.highestBlockY().toBigInteger()
+                val f = (expectedRocks - 217.toBigInteger()) / 1745.toBigInteger()
+                // Computed in previous iteration manually. This is the height of the number of
+                // remaining rocks when the cycle is not perfect to match expectedRocks.
+                val remainingRocksAfterCycle = 1274.toBigInteger()
+                val res = f * cycleSize + (highest - 2.toBigInteger()*cycleSize) + remainingRocksAfterCycle
+                println(res)
+                // area.print()
+                return
+            }
+
+            if (cycleDectected) {
+                necessaryRocks--
+                if (necessaryRocks < 0) {
+                    // 1274 computed here.
+                    println("area.highestBlockY() = ${area.highestBlockY() - 5841}")
+                    return
+                }
+            }
+
+            val nextBlock = blocks[blockIndex]
+            val nextY = area.highestBlockY() + nextBlock.size + 3
+            var block = Block(2, nextY, nextBlock)
+            blockIndex = (blockIndex + 1) % blocks.size
+
+            while (true) {
+                // Move left or right.
+                val b1 = block.apply(movements[movementIndex])
+                movementIndex = (movementIndex + 1) % movements.size
+                if (area.isValid(b1)) {
+                    block = b1
+                }
+
+                // Move down.
+                val b2 = block.down()
+                if (area.isValid(b2)) {
+                    block = b2
+                } else {
+                    break
+                }
+            }
+
+            area.store(block)
+        }
+        println("Nothing found")
+        println(area.highestBlockY() + 1)
+        // area.print()
+        // We start counting at 0.
+    }
 
     @Test
     fun part1() {
@@ -267,3 +387,10 @@ class Day17Test {
 // 15 .###.#.
 
 // the blank from the previous block is overriding the existing rock (line 15)
+
+fun main() {
+    val cycleAt = 151434.toBigInteger()
+    val steps = 1000000000.toBigInteger()
+    val remaining = steps % cycleAt
+    println(remaining)
+}
