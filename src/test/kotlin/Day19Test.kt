@@ -25,6 +25,11 @@ data class Blueprint(
 class Day19Test {
     @Test
     fun part1() {
+        val blueprints = parseInput()
+        blueprints.forEach(::println)
+    }
+
+    private fun parseInput(): List<Blueprint> {
         val blueprints = Files.readAllLines(Path.of("19.txt"))
             .filter(String::isNotEmpty)
             .map { it.split(" ") }
@@ -37,13 +42,15 @@ class Day19Test {
                 val clay = Robot(line[12].toInt())
                 val obsidian = Robot(line[18].toInt(), line[21].toInt())
                 val geode = Robot(line[27].toInt(), null, line[30].toInt())
-                Blueprint(line[1].split(":")[0].toInt(), mapOf(
-                    Material.Ore to ore,
-                    Material.Clay to clay,
-                    Material.Obsidian to obsidian,
-                    Material.Geode to geode,
-                ))
+                Blueprint(
+                    line[1].split(":")[0].toInt(), mapOf(
+                        Material.Ore to ore,
+                        Material.Clay to clay,
+                        Material.Obsidian to obsidian,
+                        Material.Geode to geode,
+                    )
+                )
             }
-        blueprints.forEach(::println)
+        return blueprints
     }
 }
