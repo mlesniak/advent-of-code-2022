@@ -27,6 +27,15 @@ class Day19Test {
     fun part1() {
         val blueprints = parseInput()
         blueprints.forEach(::println)
+
+        // For each blueprint, simulate greedy algorithm.
+        blueprints
+            .sumOf { computeScore(it) * it.id }
+            .let(::println)
+    }
+
+    private fun computeScore(blueprint: Blueprint): Int {
+        return 1
     }
 
     private fun parseInput(): List<Blueprint> {
