@@ -132,12 +132,13 @@ class Day18Test {
         val minZ = input.keys.minOf { it.z }.toInt()
         val maxZ = input.keys.maxOf { it.z }.toInt()
 
-        // println("minX: $minX, maxX: $maxX")
-        // println("minY: $minY, maxY: $maxY")
-        // println("minZ: $minZ, maxZ: $maxZ")
+        println("minX: $minX, maxX: $maxX")
+        println("minY: $minY, maxY: $maxY")
+        println("minZ: $minZ, maxZ: $maxZ")
 
         // Start with a minimal cube one coordinate outside of the input.
         val start = Coordinate(minX - 1, minY - 1, minZ - 1)
+        println(start)
 
         val visited = mutableSetOf<Coordinate>()
         val queue = mutableListOf(start)
@@ -145,18 +146,21 @@ class Day18Test {
         // Too lazy to add a proper termination condition which
         // is something like all cubes in the boundary box have
         // been visited.
-        var steps = 1000
+        var steps = 10_000_000
         var visibleSides = 0
         while (queue.isNotEmpty()) {
             if (steps-- <= 0) {
                 break
+            }
+            if (queue.size % 1000 == 0) {
+                println("queue size: ${queue.size}, visited: ${visited.size}, visible sides: $visibleSides")
             }
             val next = queue.removeFirst()
             if (next in visited) {
                 continue
             }
             visited += next
-            val ns = next.neighbors().filter { it !in visited && it.x >= 0 && it.y >= 0 && it.z >= 0 }
+            val ns = next.neighbors().filter { it !in visited }
             // println("\nNEXT: $next")
             // ns.forEach(::println)
 
