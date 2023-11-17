@@ -60,6 +60,8 @@ static class Day19
         var sum = 0;
         for (int i = 0; i < blueprints.Length; i++)
         {
+            maxRes = 0;
+            cache.Clear();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             var bp = blueprints[i];
