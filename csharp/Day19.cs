@@ -49,7 +49,7 @@ record Blueprint(int Number, int[][] Costs, int[] MaxCost)
 
 static class Day19
 {
-    private static int Depth = 24;
+    private static int Depth = 32;
 
     public static void Run()
     {
@@ -58,7 +58,7 @@ static class Day19
             .Select(Blueprint.From) // To Arrays.
             .ToArray();
 
-        var sum = 0;
+        var sum = 1;
         for (int i = 0; i < blueprints.Length; i++)
         {
             maxRes = 0;
@@ -76,7 +76,8 @@ static class Day19
             stopwatch.Stop();
             Console.WriteLine($"Duration {stopwatch.Elapsed}");
 
-            sum += (bp.Number) * maxResult.Item1;
+            // sum += (bp.Number) * maxResult.Item1;
+            sum *= maxResult.Item1;
         }
         Console.WriteLine(sum);
     }
@@ -90,6 +91,17 @@ static class Day19
         if (cache.TryGetValue(key, out int res))
         {
             return (res, "");
+        }
+
+        // Assuming we are creating only geode robots from now on, ignoring
+        // minerals, check if we would be able to bypass the current maximum.
+        // If not, we can abort anyway.
+        var timeLeft = depth;
+        var currentGeodeProducers = robots[3] * timeLeft;
+        var restProducing = (timeLeft * timeLeft) / 2;
+        if (minerals[3] + currentGeodeProducers + restProducing < maxRes)
+        {
+            return (-1, "");
         }
 
         if (depth == 0)
