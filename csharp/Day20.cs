@@ -7,102 +7,54 @@ public static class Day20
     public static void Run()
     {
         List<int> source = File.ReadLines("20.txt").Select(line => Int32.Parse(line)).ToList();
-        var numbers = CircularListArray.From(source);
+        var numbers = CircularList.From(source);
+        // Console.WriteLine(numbers);
+        // Console.WriteLine("");
+
+        foreach (Node n in numbers.Nodes)
+        {
+            if (n.Value == 0)
+            {
+                continue;
+            }
+            // Console.WriteLine($"{n}");
+            numbers.Shift(n, n.Value);
+            // Console.WriteLine($"{n}:  {numbers}");
+        }
+
+        Console.WriteLine("Result");
         Console.WriteLine(numbers);
 
-        foreach (int num in source)
+        int nth = numbers.Nth(1000);
+        int i = numbers.Nth(2000);
+        int l = numbers.Nth(3000);
+        Console.WriteLine($"{nth}, {i}, {l}");
+        var sum = nth + i + l;
+        Console.WriteLine(sum);
+
+        var r = -13 % 10;
+        if (r < 0)
         {
-            Console.WriteLine($"\nfor {num}");
-            numbers.Shift(num, num);
-            Console.WriteLine(numbers);
+            r += 10;
         }
-
-        Console.WriteLine("\nResult");
-        Console.WriteLine(numbers);
-        int n1 = numbers.Nth(1000);
-        int n2 = numbers.Nth(2000);
-        int n3 = numbers.Nth(3000);
-        Console.WriteLine($"{n1} {n2} {n3}");
-        var result = n1 + n2 + n3;
-        Console.WriteLine($"{result}");
+        Console.WriteLine(r);
     }
-}
-
-public class CircularListArray
-{
-    private List<int> List;
-
-    public static CircularListArray From(List<int> source)
-    {
-        return new CircularListArray {List = new List<int>(source)};
-    }
-
-    private int Find(int value)
-    {
-        return List.IndexOf(value);
-    }
-
-    public int Nth(int delta)
-    {
-        var zero = Find(0);
-        return List[(zero + delta) % List.Count];
-    }
-
-    public void Shift(int value, int delta)
-    {
-        var cur = Find(value);
-        Console.WriteLine($"cur={cur}");
-        var newPos = (cur + delta) % List.Count;
-        if (newPos == 0)
-        {
-            // newPos++;
-        }
-        if (cur + delta > List.Count)
-        {
-            // newPos = newPos % List.Count + 1;
-            newPos++;
-        }
-        if (newPos < 0)
-        {
-            newPos = List.Count + newPos - 1;
-        }
-        if (newPos == cur)
-        {
-            return;
-        }
-        Console.WriteLine($"newPos = {newPos}");
-        List.RemoveAt(cur);
-        List.Insert(newPos, value);
-    }
-
-    public override string ToString() => string.Join(",", List);
 }
 
 public class CircularList
 {
     Node Head { get; set; }
     private int Count { get; set; }
+    public List<Node> Nodes { get; set; }
 
     private Node Find(int value)
     {
         var cur = Head;
         while (cur.Value != value)
         {
-            cur = cur.Next;
+            cur = cur.Right;
         }
         return cur;
-    }
-
-    public int Distance(int n)
-    {
-        var cur = Find(0);
-        int d = 0;
-        while (cur.Value != n)
-        {
-            cur = cur.Next;
-            d++;
-        }
-        return d;
     }
 
     public int Nth(int n)
@@ -110,89 +62,85 @@ public class CircularList
         var cur = Find(0);
         while (n-- > 0)
         {
-            cur = cur.Next;
+            cur = cur.Right;
         }
 
         return cur.Value;
     }
 
-    public void Shift(int value, int delta)
+    public void Shift(Node k, int kn)
     {
-        if (delta == 0)
+        var m = Count - 1;
+
+        if (kn == 0)
         {
             return;
         }
 
-        var cur = Find(value);
-        cur.Prev.Next = cur.Next;
-
-        Node tmp = cur;
-        if (delta > 0)
+        // Console.WriteLine("Loop");
+        var p = k;
+        if (kn > 0)
         {
-            while (delta > 0)
+            var t = kn % m;
+            var steps = 0;
+            while (t-- > 0)
             {
-                tmp = tmp.Next;
-                delta--;
+                steps++;
+                // Console.WriteLine($"current p={p.Value}");
+                p = p.Right;
             }
-            cur.Next.Prev = cur.Prev;
-            cur.Next = tmp.Next;
-            tmp.Next.Prev = cur;
-            tmp.Next = cur;
-            cur.Prev = tmp;
-            return;
+            // Console.WriteLine($"k={k}, p={p}");
+            // Console.WriteLine($"steps={steps}");
+            if (k == p)
+            {
+                return;
+            }
+            k.Right.Left = k.Left;
+            k.Left.Right = k.Right;
+            p.Right.Left = k;
+            k.Right = p.Right;
+            p.Right = k;
+            k.Left = p;
+            // Console.WriteLine($"k.Left={k.Left}, k.Right={k.Right}");
+            // Console.ReadLine();
         }
-
-        while (delta <= 0)
+        else
         {
-            tmp = tmp.Prev;
-            delta++;
+            var t = -kn % m;
+            while (t-- > 0)
+            {
+                p = p.Left;
+            }
+            // Console.WriteLine($"k={k}, p={p}");
+            // Console.ReadLine();
+            if (k == p)
+            {
+                return;
+            }
+            k.Left.Right = k.Right;
+            k.Right.Left = k.Left;
+            p.Left.Right = k;
+            k.Left = p.Left;
+            p.Left = k;
+            k.Right = p;
         }
-        cur.Next.Prev = cur.Prev;
-        cur.Next = tmp.Next;
-        tmp.Next.Prev = cur;
-        tmp.Next = cur;
-        cur.Prev = tmp;
     }
 
     public override string ToString()
     {
         var sb = new StringBuilder();
-        if (true)
-        {
-            return "nope";
-        }
-
-        var head = Find(1);
+        var goal = -3616;
+        var head = Find(goal);
 
         sb.Append(head.Value);
         sb.Append(' ');
 
-        var cur = head.Next;
-        while (cur.Value != 1)
+        var cur = head.Right;
+        while (cur.Value != goal)
         {
             sb.Append(cur.Value);
             sb.Append(' ');
-            cur = cur.Next;
-        }
-        sb.Remove(sb.Length - 1, 1);
-        return sb.ToString();
-    }
-
-    public string ToStringRev()
-    {
-        var sb = new StringBuilder();
-
-        var head = Find(1);
-
-        sb.Append(head.Value);
-        sb.Append(' ');
-
-        var cur = head.Prev;
-        while (cur.Value != 1)
-        {
-            sb.Append(cur.Value);
-            sb.Append(' ');
-            cur = cur.Prev;
+            cur = cur.Right;
         }
         sb.Remove(sb.Length - 1, 1);
         return sb.ToString();
@@ -201,27 +149,30 @@ public class CircularList
     public static CircularList From(List<int> source)
     {
         var numbers = new CircularList();
-        var prev = new Node {Value = source[0]};
-        numbers.Head = prev;
-        for (int i = 1; i < source.Count; i++)
+
+        var ks = source.Select(n => new Node {Value = n}).ToList();
+        for (int i = 1; i < ks.Count-1; i++)
         {
-            var cur = new Node {Value = source[i]};
-            prev.Next = cur;
-            cur.Prev = prev;
-            prev = cur;
+            ks[i].Left = ks[i-1];
+            ks[i].Right = ks[i + 1];
         }
-        prev.Next = numbers.Head;
-        numbers.Head.Prev = prev;
+        ks[0].Right = ks[1];
+        ks[0].Left = ks[^1];
+        ks[^1].Left = ks[^2];
+        ks[^1].Right = ks[0];
+
         numbers.Count = source.Count;
+        numbers.Head = ks[0];
+        numbers.Nodes = ks;
         return numbers;
     }
 }
 
 public class Node
 {
-    public int Value { get; set; }
-    public Node Next { get; set; }
-    public Node Prev { get; set; }
+    public int Value { get; init; }
+    public Node Right { get; set; }
+    public Node Left { get; set; }
 
-    public override string ToString() => $"{Value}";
+    public override string ToString() => $"{Value}/{base.GetHashCode()}";
 }
