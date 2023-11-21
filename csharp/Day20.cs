@@ -8,8 +8,8 @@ public static class Day20
     {
         List<int> source = File.ReadLines("20.txt").Select(line => Int32.Parse(line)).ToList();
         var numbers = CircularList.From(source);
-        Console.WriteLine(numbers);
-        Console.WriteLine(811589153L * -3L);
+        // Console.WriteLine(numbers);
+        // Console.WriteLine(811589153L * -3L);
         // Console.WriteLine("");
 
         for (int o = 0; o < 10; o++)
@@ -25,11 +25,11 @@ public static class Day20
                 numbers.Shift(n, n.Value);
                 // Console.WriteLine($"{n}:  {numbers}");
             }
-            Console.WriteLine(numbers);
+            // Console.WriteLine(numbers);
         }
 
         Console.WriteLine("Result");
-        Console.WriteLine(numbers);
+        // Console.WriteLine(numbers);
 
         long nth = numbers.Nth(1000);
         long i = numbers.Nth(2000);
