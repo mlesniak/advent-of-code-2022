@@ -87,13 +87,14 @@ public class Day22
                             {
                                 // Find opposite end.
                                 var sy = maxHeight - 1;
+                                var prev = ny;
                                 while (true)
                                 {
                                     if (grid[sy][nx] == '#')
                                     {
                                         // Ok, wall ahead, let's abort.
                                         stopNorth = true;
-                                        ny++;
+                                        ny = prev;
                                         break;
                                     }
                                     if (grid[sy][nx] == '.')
@@ -122,13 +123,14 @@ public class Day22
                             {
                                 // Find opposite end.
                                 var sx = 0;
+                                var prev = nx;
                                 while (true)
                                 {
                                     if (grid[ny][sx] == '#')
                                     {
                                         // Ok, wall ahead, let's abort.
                                         stopEast = true;
-                                        nx--;
+                                        nx = prev;
                                         break;
                                     }
                                     if (grid[ny][sx] == '.')
@@ -157,13 +159,14 @@ public class Day22
                             {
                                 // Find opposite end.
                                 var sy = 0;
+                                var prev = ny;
                                 while (true)
                                 {
                                     if (grid[sy][nx] == '#')
                                     {
                                         // Ok, wall ahead, let's abort.
                                         stopSouth = true;
-                                        ny--;
+                                        ny = prev;
                                         break;
                                     }
                                     if (grid[sy][nx] == '.')
@@ -195,14 +198,15 @@ public class Day22
                             if (grid[ny][nx] == ' ')
                             {
                                 // Find opposite end.
-                                var sx = 0;
+                                var sx = maxWidth - 1;
+                                var prev = nx;
                                 while (true)
                                 {
                                     if (grid[ny][sx] == '#')
                                     {
                                         // Ok, wall ahead, let's abort.
                                         stopWest = true;
-                                        nx++;
+                                        nx = prev;
                                         break;
                                     }
                                     if (grid[ny][sx] == '.')
