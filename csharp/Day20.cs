@@ -8,26 +8,32 @@ public static class Day20
     {
         List<int> source = File.ReadLines("20.txt").Select(line => Int32.Parse(line)).ToList();
         var numbers = CircularList.From(source);
-        // Console.WriteLine(numbers);
+        Console.WriteLine(numbers);
+        Console.WriteLine(811589153L * -3L);
         // Console.WriteLine("");
 
-        foreach (Node n in numbers.Nodes)
+        for (int o = 0; o < 10; o++)
         {
-            if (n.Value == 0)
+            Console.WriteLine($"\nRun {o}");
+            foreach (Node n in numbers.Nodes)
             {
-                continue;
+                if (n.Value == 0)
+                {
+                    continue;
+                }
+                // Console.WriteLine($"{n}");
+                numbers.Shift(n, n.Value);
+                // Console.WriteLine($"{n}:  {numbers}");
             }
-            // Console.WriteLine($"{n}");
-            numbers.Shift(n, n.Value);
-            // Console.WriteLine($"{n}:  {numbers}");
+            Console.WriteLine(numbers);
         }
 
         Console.WriteLine("Result");
         Console.WriteLine(numbers);
 
-        int nth = numbers.Nth(1000);
-        int i = numbers.Nth(2000);
-        int l = numbers.Nth(3000);
+        long nth = numbers.Nth(1000);
+        long i = numbers.Nth(2000);
+        long l = numbers.Nth(3000);
         Console.WriteLine($"{nth}, {i}, {l}");
         var sum = nth + i + l;
         Console.WriteLine(sum);
@@ -57,7 +63,7 @@ public class CircularList
         return cur;
     }
 
-    public int Nth(int n)
+    public long Nth(int n)
     {
         var cur = Find(0);
         while (n-- > 0)
@@ -68,7 +74,7 @@ public class CircularList
         return cur.Value;
     }
 
-    public void Shift(Node k, int kn)
+    public void Shift(Node k, long kn)
     {
         var m = Count - 1;
 
@@ -129,14 +135,14 @@ public class CircularList
     public override string ToString()
     {
         var sb = new StringBuilder();
-        var goal = -3616;
-        var head = Find(goal);
 
+
+        var head = Nodes[0];
         sb.Append(head.Value);
         sb.Append(' ');
 
         var cur = head.Right;
-        while (cur.Value != goal)
+        while (cur != Nodes[0])
         {
             sb.Append(cur.Value);
             sb.Append(' ');
@@ -150,10 +156,11 @@ public class CircularList
     {
         var numbers = new CircularList();
 
-        var ks = source.Select(n => new Node {Value = n}).ToList();
-        for (int i = 1; i < ks.Count-1; i++)
+        long key = 811589153;
+        var ks = source.Select(n => new Node {Value = n * key}).ToList();
+        for (int i = 1; i < ks.Count - 1; i++)
         {
-            ks[i].Left = ks[i-1];
+            ks[i].Left = ks[i - 1];
             ks[i].Right = ks[i + 1];
         }
         ks[0].Right = ks[1];
@@ -170,7 +177,7 @@ public class CircularList
 
 public class Node
 {
-    public int Value { get; init; }
+    public long Value { get; init; }
     public Node Right { get; set; }
     public Node Left { get; set; }
 
