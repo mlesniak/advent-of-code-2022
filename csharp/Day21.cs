@@ -56,6 +56,11 @@ public static class Day21
 
         var left = Compute(formulas, node.a);
         var right = Compute(formulas, node.b);
+        var k = Simplify(left, node.op, right);
+        if (k.HasValue)
+        {
+            return $"{k.Value}";
+        }
         switch (node.op)
         {
             case '+':
@@ -74,6 +79,35 @@ public static class Day21
             default:
                 throw new InvalidProgramException();
         }
+    }
+
+    private static long? Simplify(string left, char op, string right)
+    {
+        if (left.Equals("11031981") || right.Equals("11031981"))
+        {
+            return null;
+        }
+
+        if (Int64.TryParse(left, out long a) && Int64.TryParse(right, out long b))
+        {
+            switch (op)
+            {
+            case '+':
+                return a + b;
+            case '-':
+                return a - b;
+            case '*':
+                return a * b;
+            case '/':
+                return a / b;
+            case '=':
+                return null;
+            default:
+                throw new InvalidProgramException();
+            }
+        }
+
+        return null;
     }
 }
 
