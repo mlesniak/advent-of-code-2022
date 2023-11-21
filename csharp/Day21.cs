@@ -20,17 +20,26 @@ public static class Day21
             }
         }
 
-        foreach (var form in formulas)
+        // foreach (var form in formulas)
+        // {
+        //     Console.WriteLine(form);
+        // }
+
+        formulas["root"].op = '=';
+        for (long i = 0; i < Int64.MaxValue; i++)
         {
-            Console.WriteLine(form);
+            Console.WriteLine("i = {0}", i);
+            formulas["humn"].Value = i;
+            var result = Compute(formulas, "root");
+            if (result == 1)
+            {
+                Console.WriteLine(i);
+                break;
+            }
         }
-
-        var result = Compute(formulas, "root");
-        Console.WriteLine(result);
-
     }
 
-    private static long Compute(Dictionary<string,MonkeyNode> formulas, string name)
+    private static long Compute(Dictionary<string, MonkeyNode> formulas, string name)
     {
         var node = formulas[name];
         long? value = node.Value;
@@ -51,6 +60,8 @@ public static class Day21
                 return left * right;
             case '/':
                 return left / right;
+            case '=':
+                return left == right ? 1 : 0;
             default:
                 throw new InvalidProgramException();
         }
