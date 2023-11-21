@@ -1,3 +1,3 @@
 ﻿using Lesniak.AdventOfCode2022;
 
-Day20.Run();
+Day21.Run();
