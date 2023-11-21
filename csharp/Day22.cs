@@ -75,15 +75,11 @@ public class Day22
                         {
                             var nx = x;
                             var ny = (y - 1) % maxHeight;
-                            if (ny < 0)
-                            {
-                                ny = maxHeight - 1;
-                            }
-                            if (grid[ny][nx] == '#')
+                            if (ny >= 0 && grid[ny][nx] == '#')
                             {
                                 break;
                             }
-                            if (grid[ny][nx] == ' ')
+                            if (ny < 0 || grid[ny][nx] == ' ')
                             {
                                 // Find opposite end.
                                 var sy = maxHeight - 1;
@@ -186,16 +182,12 @@ public class Day22
                         while (steps-- > 0 && !stopWest)
                         {
                             var nx = (x - 1) % maxWidth;
-                            if (nx < 0)
-                            {
-                                nx = maxWidth - 1;
-                            }
                             var ny = y;
-                            if (grid[ny][nx] == '#')
+                            if (nx >=0 && grid[ny][nx] == '#')
                             {
                                 break;
                             }
-                            if (grid[ny][nx] == ' ')
+                            if (nx < 0 || grid[ny][nx] == ' ')
                             {
                                 // Find opposite end.
                                 var sx = maxWidth - 1;
