@@ -26,26 +26,32 @@ public static class Day21
         // }
 
         formulas["root"].op = '=';
-        for (long i = 0; i < Int64.MaxValue; i++)
-        {
-            Console.WriteLine("i = {0}", i);
-            formulas["humn"].Value = i;
-            var result = Compute(formulas, "root");
-            if (result == 1)
-            {
-                Console.WriteLine(i);
-                break;
-            }
-        }
+        // for (long i = 0; i < Int64.MaxValue; i++)
+        // {
+        // if (i % 10_000 == 0)
+        // {
+        // Console.WriteLine("i = {0}", i);
+        // }
+        formulas["humn"].Value = 11031981;
+        var result = Compute(formulas, "root");
+        var solve = result.Replace("11031981", "x");
+
+        Console.WriteLine(solve);
+        // if (result == 1)
+        // {
+        //     Console.WriteLine(i);
+        //     break;
+        // }
+        // }
     }
 
-    private static long Compute(Dictionary<string, MonkeyNode> formulas, string name)
+    private static String Compute(Dictionary<string, MonkeyNode> formulas, string name)
     {
         var node = formulas[name];
         long? value = node.Value;
         if (value.HasValue)
         {
-            return value.Value;
+            return $"{value.Value}";
         }
 
         var left = Compute(formulas, node.a);
@@ -53,15 +59,18 @@ public static class Day21
         switch (node.op)
         {
             case '+':
-                return left + right;
+                return $"({left} + {right})";
             case '-':
-                return left - right;
+                return $"({left} - {right})";
             case '*':
-                return left * right;
+                return $"({left} * {right})";
+            // return left - right;
             case '/':
-                return left / right;
+                return $"({left} / {right})";
+            // return left / right;
             case '=':
-                return left == right ? 1 : 0;
+                return $"({left} = {right})";
+            // return left == right ? 1 : 0;
             default:
                 throw new InvalidProgramException();
         }
