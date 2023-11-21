@@ -30,10 +30,10 @@ public static class Day21
 
     }
 
-    private static int Compute(Dictionary<string,MonkeyNode> formulas, string name)
+    private static long Compute(Dictionary<string,MonkeyNode> formulas, string name)
     {
         var node = formulas[name];
-        int? value = node.Value;
+        long? value = node.Value;
         if (value.HasValue)
         {
             return value.Value;
@@ -59,7 +59,7 @@ public static class Day21
 
 class MonkeyNode
 {
-    public int? Value = null;
+    public long? Value = null;
     public String a;
     public String b;
     public char op;
@@ -67,7 +67,7 @@ class MonkeyNode
     public static MonkeyNode FromNumber(string num)
     {
         var node = new MonkeyNode();
-        node.Value = Int32.Parse(num);
+        node.Value = Int64.Parse(num);
         return node;
     }
 
