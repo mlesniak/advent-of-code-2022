@@ -124,14 +124,7 @@ public class Day22
 
                 if (ny < 0 || grid[ny][nx] == ' ')
                 {
-                    // Find next element on the opposite side if possible.
-                    // Can also be a block -> null.
-                    var dx = 0;
-                    var dy = -1;
-                    var sx = state.X;
-                    var sy = maxHeight - 1;
-                    var sdir = dir;
-
+                    var (dx, dy, sx, sy, sdir) = Cube(state, maxWidth, maxHeight);
                     while (true)
                     {
                         if (grid[sy][sx] == '#')
@@ -162,7 +155,6 @@ public class Day22
                 if (ny == maxHeight || grid[ny][nx] == ' ')
                 {
                     var (dx, dy, sx, sy, sdir) = Cube(state, maxWidth, maxHeight);
-
                     while (true)
                     {
                         if (grid[sy][sx] == '#')
@@ -192,15 +184,7 @@ public class Day22
 
                 if (nx < 0 || grid[ny][nx] == ' ')
                 {
-                    // Find next element on the opposite side if possible.
-                    // Can also be a block -> null.
-                    // For part 2, this will be dynamic.
-                    var dx = -1;
-                    var dy = 0;
-                    var sx = maxWidth - 1;
-                    var sy = state.Y;
-                    var sdir = dir;
-
+                    var (dx, dy, sx, sy, sdir) = Cube(state, maxWidth, maxHeight);
                     while (true)
                     {
                         if (grid[sy][sx] == '#')
@@ -230,11 +214,7 @@ public class Day22
 
                 if (nx >= maxWidth || grid[ny][nx] == ' ')
                 {
-                    // Find next element on the opposite side if possible.
-                    // Can also be a block -> null.
-                    // For part 2, this will be dynamic.
                     var (dx, dy, sx, sy, sdir) = Cube(state, maxWidth, maxHeight);
-
                     while (true)
                     {
                         if (grid[sy][sx] == '#')
@@ -265,22 +245,89 @@ public class Day22
         var y = state.Y;
         var dir = state.Dir;
 
-        if (x >= 8 && x <= 11 && y >= 4 && y <= 7)
+        // 1
+        if (x >= 50 && x <= 99 && y >= 0 && y <= 49)
         {
             switch (dir)
             {
-                case East:
-                    return (0, 1, 19 - y, 8, South);
+                case West:
+                    return (1, 0, 0, 149 - y, East);
+                case North: // 6
+                    return (1, 0, 0, x + 100, East);
                 default:
                     throw new InvalidProgramException($"{state}");
             }
         }
-        if (x >= 8 && x <= 11 && y >= 8 && y <= 11)
+
+        // 2
+        if (x >= 100 && x <= 149 && y >= 0 && y <= 49)
+        {
+            switch (dir)
+            {
+                case East: // 5
+                    return (-1, 0, 149, 149 - y, West);
+                case South: // 3
+                    return (-1, 0, 99, x - 50, West);
+                case North: // 6
+                    return (0, 1, x - 100, 199, North);
+                default:
+                    throw new InvalidProgramException($"{state}");
+            }
+        }
+
+        // 3
+        if (x >= 50 && x <= 99 && y >= 50 && y <= 99)
+        {
+            switch (dir)
+            {
+                case West: // 4
+                    return (0, 1, y - 50, 100, South);
+                case East:
+                    return (0, -1, y + 50, 50, North);
+                default:
+                    throw new InvalidProgramException($"{state}");
+            }
+        }
+
+        // 4
+        if (x >= 0 && x <= 49 && y >= 100 && y <= 149)
+        {
+            switch (dir)
+            {
+                case West:
+                    return (1, 0, 50, 149 - y, East);
+                case North:
+                    return (1, 0, 50, 50 + x, East);
+                default:
+                    throw new InvalidProgramException($"{state}");
+            }
+        }
+
+        // 5
+        if (x >= 50 && x <= 99 && y >= 100 && y <= 149)
+        {
+            switch (dir)
+            {
+                case East:
+                    return (-1, 0, 149, 149 - y, West);
+                case South: // 6
+                    return (-1, 0, 49, x + 100, West);
+                default:
+                    throw new InvalidProgramException($"{state}");
+            }
+        }
+
+        // 6
+        if (x >= 0 && x <= 49 && y >= 150 && y <= 199)
         {
             switch (dir)
             {
                 case South:
-                    return (0, -1, 11 - x, 7, North);
+                    return (0, 1, x + 100, 0, South);
+                case West: // 1
+                    return (0, 1, y - 100, 0, South);
+                case East: // 5
+                    return (0, -1, y - 100, 149, North);
                 default:
                     throw new InvalidProgramException($"{state}");
             }
