@@ -41,8 +41,8 @@ class Position
 class Grid
 {
     private Dictionary<Position, List<char>> Blizzards = new();
-    private int Width { get; set; }
-    private int Height { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
 
     public Grid Step()
     {
@@ -102,7 +102,9 @@ class Grid
         return copy;
     }
 
-    public override string ToString()
+    public override string ToString() => ToString(null);
+
+    public string ToString(Position? pos)
     {
         var sb = new StringBuilder();
         for (var row = 0; row < Height; row++)
@@ -120,6 +122,10 @@ class Grid
                         sb.Append(cs[0]);
                     }
                 }
+                else if (pos != null && pos.X == col && pos.Y == row)
+                {
+                    sb.Append('E');
+                }
                 else
                 {
                     sb.Append('.');
@@ -130,6 +136,30 @@ class Grid
         sb.Append('\n');
 
         return sb.ToString();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj))
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+        if (obj.GetType() != this.GetType())
+        {
+            return false;
+        }
+        return Blizzards.Equals(((Grid)obj).Blizzards);
+    }
+
+    public override int GetHashCode() => Blizzards.GetHashCode();
+
+    public bool IsFree(int x, int y)
+    {
+        return !Blizzards.ContainsKey(new Position(x, y));
     }
 
     public static Grid Load(string filename)
@@ -161,13 +191,48 @@ class BlizzardState
     public Grid Grid;
     public Position Pos;
 
-    public override string ToString() => $"{Minute} {Pos}";
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append($"Minute={Minute}\n");
+        sb.Append($"Pos={Pos}\n");
+        sb.Append(Grid.ToString(Pos));
+        return sb.ToString();
+    }
 
     public List<BlizzardState> Nexts()
     {
-        // Move Blizzards.
-        // Check fields around.
-        throw new NotImplementedException();
+        var res = new List<BlizzardState>();
+
+        // Since we are never doing anything directly with the 
+        // reference, using the same for all states should be fine.
+        // (and we do not have to create separate copies).
+        var nextGrid = Grid.Step();
+
+        // (0,0) is wait.
+        var dirs = new List<(int, int)>
+        {
+            (-1, 0),
+            (1, 0),
+            (0, 1),
+            (0, -1),
+            (0, 0)
+        };
+        foreach (var (dx, dy) in dirs)
+        {
+            var nx = Pos.X + dx;
+            var ny = Pos.Y + dy;
+            if (nx <= 0 || nx >= Grid.Width || ny <= 0 || (ny >= Grid.Height && nx != Grid.Width - 1))
+            {
+                continue;
+            }
+            if (nextGrid.IsFree(nx, ny))
+            {
+                res.Add(new BlizzardState() {Minute = Minute + 1, Grid = nextGrid, Pos = new Position(nx, ny)});
+            }
+        }
+
+        return res;
     }
 }
 
@@ -177,15 +242,49 @@ public class Day24
     {
         var grid = Grid.Load("24.txt");
 
-        var minute = 0;
-        while (true)
+        var seen = new HashSet<BlizzardState>();
+        var queue = new Queue<BlizzardState>();
+        var root = new BlizzardState {Minute = 0, Grid = grid, Pos = new Position(1, 0)};
+        queue.Enqueue(root);
+
+        Console.WriteLine(grid.Width);
+        Console.WriteLine(grid.Height);
+        var goal = new Position(grid.Width - 2, grid.Height - 1);
+        while (queue.Any())
         {
-            Console.WriteLine($"--- Minute {minute}");
-            Console.WriteLine(grid);
+            var cur = queue.Dequeue();
+            // seen.Add(cur);
+            Console.WriteLine($"\nLooking at\n{cur}");
+
+            foreach (var nextState in cur.Nexts())
+            {
+                if (nextState.Pos.Equals(goal))
+                {
+                    Console.WriteLine("Found");
+                    Console.WriteLine(nextState);
+                    queue.Clear();
+                    break;
+                }
+                Console.WriteLine($"  Adding\n{nextState}");
+                Console.WriteLine(goal);
+                // if (!seen.Contains(nextState))
+                // {
+                queue.Enqueue(nextState);
+                // }
+            }
             Console.WriteLine("Press any key");
-            Console.ReadKey();
-            minute++;
-            grid = grid.Step();
+            // Console.ReadKey();
         }
+
+        // var minute = 0;
+        // while (true)
+        // {
+        //     Console.WriteLine($"--- Minute {minute}");
+        //     Console.WriteLine(grid);
+        //     Console.WriteLine("Press any key");
+        //     Console.ReadKey();
+        //     minute++;
+        //     grid = grid.Step();
+        // }
     }
 }
