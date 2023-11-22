@@ -49,7 +49,7 @@ public class Day23
         // {
         //     Console.WriteLine(position);
         // }
-        Render(elves);
+        // Render(elves);
 
         for (int round = 1; round <= 10; round++)
         {
@@ -83,7 +83,7 @@ public class Day23
                 elf.Choices.RemoveAt(0);
                 elf.Choices.Add(c);
             }
-            Render(elves);
+            // Render(elves);
         }
         
         int minx = elves.MinBy(elf => elf.Position.X).Position.X;
