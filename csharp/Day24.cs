@@ -36,6 +36,8 @@ class Position
     public override string ToString() => $"{X}/{Y}";
 }
 
+// All independent, we could precompute this. This was easy
+// to implement, hence I've ignored this optimization for now.
 class Grid
 {
     private Dictionary<Position, List<char>> Blizzards = new();
@@ -55,25 +57,38 @@ class Grid
                 var pos = new Position(pair.Key.X, pair.Key.Y);
                 switch (c)
                 {
+                    case '#':
+                        // We never move the wall, but having these
+                        // might make the state transitions easier
+                        // since we have natural walls.
+                        break;
                     case '>':
-                        pos.X = (pos.X + 1) % Width;
+                        pos.X = (pos.X + 1) % (Width - 1);
+                        if (pos.X == 0)
+                        {
+                            pos.X = 1;
+                        }
                         break;
                     case '<':
                         pos.X = pos.X - 1;
-                        if (pos.X < 0)
+                        if (pos.X == 0)
                         {
-                            pos.X = Width - 1;
+                            pos.X = Width - 2;
                         }
                         break;
                     case '^':
                         pos.Y = pos.Y - 1;
-                        if (pos.Y < 0)
+                        if (pos.Y == 0)
                         {
-                            pos.Y = Height - 1;
+                            pos.Y = Height - 2;
                         }
                         break;
                     case 'v':
-                        pos.Y = (pos.Y + 1) % Height;
+                        pos.Y = (pos.Y + 1) % (Height - 1);
+                        if (pos.Y == 0)
+                        {
+                            pos.Y = 1;
+                        }
                         break;
                     default:
                         throw new InvalidProgramException($"Invalid blizzard char {pair.Value}");
@@ -122,21 +137,37 @@ class Grid
         var grid = new Grid();
 
         var lines = File.ReadAllLines(filename);
-        grid.Height = lines.Length - 2;
-        grid.Width = lines[0].Length - 2;
-        for (var row = 1; row < lines.Length - 1; row++)
+        grid.Height = lines.Length;
+        grid.Width = lines[0].Length;
+        for (var row = 0; row < lines.Length; row++)
         {
-            for (var col = 1; col < lines[row].Length - 1; col++)
+            for (var col = 0; col < lines[row].Length; col++)
             {
                 var c = lines[row][col];
-                if (c != '.' && c != '#')
+                if (c != '.')
                 {
-                    grid.Blizzards[new Position(col - 1, row - 1)] = new List<char> {c};
+                    grid.Blizzards[new Position(col, row)] = new List<char> {c};
                 }
             }
         }
 
         return grid;
+    }
+}
+
+class BlizzardState
+{
+    public int Minute;
+    public Grid Grid;
+    public Position Pos;
+
+    public override string ToString() => $"{Minute} {Pos}";
+
+    public List<BlizzardState> Nexts()
+    {
+        // Move Blizzards.
+        // Check fields around.
+        throw new NotImplementedException();
     }
 }
 
