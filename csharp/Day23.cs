@@ -51,7 +51,9 @@ public class Day23
         // }
         // Render(elves);
 
-        for (int round = 1; round <= 10; round++)
+        // for (int round = 1; round <= 10; round++)
+        var round = 1;
+        while (true)
         {
             Console.WriteLine($"\n\n--- Round {round}");
             // First half. Compute positions.
@@ -64,12 +66,18 @@ public class Day23
             }
             // Second half. Determine if allowed.
             // Console.WriteLine("Second half");
+            var moves = 0;
             foreach (var elf in elves)
             {
                 // Console.WriteLine($"For {elf}");
                 int movingTo = CountMovingTo(elves, elf.Next);
                 if (movingTo == 1)
                 {
+                    if (!elf.Position.Equals(elf.Next))
+                    {
+                        // Actual move. 
+                        moves++;
+                    }
                     elf.Position = elf.Next;
                     // Console.WriteLine($"  Moved to {elf.Position}");
                 }
@@ -84,16 +92,23 @@ public class Day23
                 elf.Choices.Add(c);
             }
             // Render(elves);
-        }
-        
-        int minx = elves.MinBy(elf => elf.Position.X).Position.X;
-        int miny = elves.MinBy(elf => elf.Position.Y).Position.Y;
-        int maxx = elves.MaxBy(elf => elf.Position.X).Position.X;
-        int maxy = elves.MaxBy(elf => elf.Position.Y).Position.Y;
 
-        var squares = (maxx - minx + 1) * (maxy - miny + 1);
-        var result = squares - elves.Count;
-        Console.WriteLine(result);
+            if (moves == 0)
+            {
+                break;
+            }
+            round++;
+        }
+
+        // int minx = elves.MinBy(elf => elf.Position.X).Position.X;
+        // int miny = elves.MinBy(elf => elf.Position.Y).Position.Y;
+        // int maxx = elves.MaxBy(elf => elf.Position.X).Position.X;
+        // int maxy = elves.MaxBy(elf => elf.Position.Y).Position.Y;
+        //
+        // var squares = (maxx - minx + 1) * (maxy - miny + 1);
+        // var result = squares - elves.Count;
+        // Console.WriteLine(result);
+        Console.WriteLine(round);
     }
 
     private static void Render(HashSet<Elf> elves)
