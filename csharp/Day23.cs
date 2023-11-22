@@ -91,7 +91,7 @@ public class Day23
         int maxx = elves.MaxBy(elf => elf.Position.X).Position.X;
         int maxy = elves.MaxBy(elf => elf.Position.Y).Position.Y;
 
-        var squares = (maxx - minx) * (maxy - miny);
+        var squares = (maxx - minx + 1) * (maxy - miny + 1);
         var result = squares - elves.Count;
         Console.WriteLine(result);
     }
