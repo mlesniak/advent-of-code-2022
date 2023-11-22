@@ -234,6 +234,27 @@ class BlizzardState
 
         return res;
     }
+
+    protected bool Equals(BlizzardState other) => Grid.Equals(other.Grid) && Pos.Equals(other.Pos);
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj))
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+        if (obj.GetType() != this.GetType())
+        {
+            return false;
+        }
+        return Equals((BlizzardState)obj);
+    }
+
+    public override int GetHashCode() => HashCode.Combine(Grid, Pos);
 }
 
 public class Day24
@@ -250,27 +271,33 @@ public class Day24
         // Console.WriteLine(grid.Width);
         // Console.WriteLine(grid.Height);
         var goal = new Position(grid.Width - 2, grid.Height - 1);
+        var max = 0;
         while (queue.Any())
         {
             var cur = queue.Dequeue();
-            // seen.Add(cur);
+            if (cur.Minute > max)
+            {
+                Console.WriteLine(cur.Minute);
+                max = cur.Minute;
+            }
+            seen.Add(cur);
             // Console.WriteLine($"\nLooking at\n{cur}");
 
             foreach (var nextState in cur.Nexts())
             {
                 if (nextState.Pos.Equals(goal))
                 {
-                    Console.WriteLine("Found");
+                    // Console.WriteLine("Found");
                     Console.WriteLine(nextState.Minute);
                     queue.Clear();
                     break;
                 }
                 // Console.WriteLine($"  Adding\n{nextState}");
                 // Console.WriteLine(goal);
-                // if (!seen.Contains(nextState))
-                // {
-                queue.Enqueue(nextState);
-                // }
+                if (!seen.Contains(nextState))
+                {
+                    queue.Enqueue(nextState);
+                }
             }
             // Console.WriteLine("Press any key");
             // Console.ReadKey();
