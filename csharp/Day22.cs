@@ -114,7 +114,6 @@ public class Day22
         switch (state.Dir)
         {
             case North:
-                // TODO(mlesniak) add north and west
                 nx = state.X;
                 ny = (state.Y - 1) % maxHeight;
                 dir = state.Dir;
