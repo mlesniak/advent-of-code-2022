@@ -247,32 +247,32 @@ public class Day24
         var root = new BlizzardState {Minute = 0, Grid = grid, Pos = new Position(1, 0)};
         queue.Enqueue(root);
 
-        Console.WriteLine(grid.Width);
-        Console.WriteLine(grid.Height);
+        // Console.WriteLine(grid.Width);
+        // Console.WriteLine(grid.Height);
         var goal = new Position(grid.Width - 2, grid.Height - 1);
         while (queue.Any())
         {
             var cur = queue.Dequeue();
             // seen.Add(cur);
-            Console.WriteLine($"\nLooking at\n{cur}");
+            // Console.WriteLine($"\nLooking at\n{cur}");
 
             foreach (var nextState in cur.Nexts())
             {
                 if (nextState.Pos.Equals(goal))
                 {
                     Console.WriteLine("Found");
-                    Console.WriteLine(nextState);
+                    Console.WriteLine(nextState.Minute);
                     queue.Clear();
                     break;
                 }
-                Console.WriteLine($"  Adding\n{nextState}");
-                Console.WriteLine(goal);
+                // Console.WriteLine($"  Adding\n{nextState}");
+                // Console.WriteLine(goal);
                 // if (!seen.Contains(nextState))
                 // {
                 queue.Enqueue(nextState);
                 // }
             }
-            Console.WriteLine("Press any key");
+            // Console.WriteLine("Press any key");
             // Console.ReadKey();
         }
 
