@@ -152,22 +152,16 @@ public class Day22
                 return (new MapState(X: nx, Y: ny, Dir: dir), command with {Steps = command.Steps - 1});
             case South:
                 nx = state.X;
-                ny = (state.Y + 1) % maxHeight;
+                ny = state.Y + 1;
                 dir = state.Dir;
-                if (grid[ny][nx] == '#')
+                if (ny < maxHeight && grid[ny][nx] == '#')
                 {
                     return (state, null);
                 }
 
-                if (grid[ny][nx] == ' ')
+                if (ny == maxHeight || grid[ny][nx] == ' ')
                 {
-                    // Find next element on the opposite side if possible.
-                    // Can also be a block -> null.
-                    var dx = 0;
-                    var dy = 1;
-                    var sx = state.X;
-                    var sy = 0;
-                    var sdir = dir;
+                    var (dx, dy, sx, sy, sdir) = Cube(state, maxWidth, maxHeight);
 
                     while (true)
                     {
@@ -226,24 +220,20 @@ public class Day22
                 }
                 return (new MapState(X: nx, Y: ny, Dir: dir), command with {Steps = command.Steps - 1});
             case East:
-                nx = (state.X + 1) % maxWidth;
+                nx = state.X + 1;
                 ny = state.Y;
                 dir = state.Dir;
-                if (grid[ny][nx] == '#')
+                if (nx < maxWidth && grid[ny][nx] == '#')
                 {
                     return (state, null);
                 }
 
-                if (grid[ny][nx] == ' ')
+                if (nx >= maxWidth || grid[ny][nx] == ' ')
                 {
                     // Find next element on the opposite side if possible.
                     // Can also be a block -> null.
                     // For part 2, this will be dynamic.
-                    var dx = 1;
-                    var dy = 0;
-                    var sx = 0;
-                    var sy = state.Y;
-                    var sdir = dir;
+                    var (dx, dy, sx, sy, sdir) = Cube(state, maxWidth, maxHeight);
 
                     while (true)
                     {
@@ -266,6 +256,37 @@ public class Day22
             default:
                 throw new ArgumentOutOfRangeException();
         }
+    }
+
+    // Manually determined.
+    private static (int dx, int dy, int sx, int sy, Direction sdir) Cube(MapState state, int maxWidth, int maxHeight)
+    {
+        var x = state.X;
+        var y = state.Y;
+        var dir = state.Dir;
+
+        if (x >= 8 && x <= 11 && y >= 4 && y <= 7)
+        {
+            switch (dir)
+            {
+                case East:
+                    return (0, 1, 19 - y, 8, South);
+                default:
+                    throw new InvalidProgramException($"{state}");
+            }
+        }
+        if (x >= 8 && x <= 11 && y >= 8 && y <= 11)
+        {
+            switch (dir)
+            {
+                case South:
+                    return (0, -1, 11 - x, 7, North);
+                default:
+                    throw new InvalidProgramException($"{state}");
+            }
+        }
+
+        throw new InvalidProgramException($"{state}");
     }
 
     private static MapState ComputeStartingPosition(char[][] grid, MapState state)
