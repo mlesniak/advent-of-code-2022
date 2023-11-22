@@ -270,7 +270,43 @@ public class Day22
         switch (state.Dir)
         {
             case North:
-                break;
+                // TODO(mlesniak) add north and west
+                nx = state.X;
+                ny = (state.Y - 1) % maxHeight;
+                dir = state.Dir;
+                if (ny >= 0 && grid[ny][nx] == '#')
+                {
+                    return (state, null);
+                }
+
+                if (ny < 0 || grid[ny][nx] == ' ')
+                {
+                    // Find next element on the opposite side if possible.
+                    // Can also be a block -> null.
+                    var dx = 0;
+                    var dy = -1;
+                    var sx = state.X;
+                    var sy = maxHeight - 1;
+                    var sdir = dir;
+
+                    while (true)
+                    {
+                        if (grid[sy][sx] == '#')
+                        {
+                            return (state, null);
+                        }
+                        if (grid[sy][sx] == ' ')
+                        {
+                            sx += dx;
+                            sy += dy;
+                        }
+                        if (grid[sy][sx] == '.')
+                        {
+                            return (new MapState(X: sx, Y: sy, Dir: sdir), command with {Steps = command.Steps - 1});
+                        }
+                    }
+                }
+                return (new MapState(X: nx, Y: ny, Dir: dir), command with {Steps = command.Steps - 1});
             case South:
                 nx = state.X;
                 ny = (state.Y + 1) % maxHeight;
@@ -309,7 +345,43 @@ public class Day22
                 }
                 return (new MapState(X: nx, Y: ny, Dir: dir), command with {Steps = command.Steps - 1});
             case West:
-                break;
+                nx = (state.X - 1) % maxWidth;
+                ny = state.Y;
+                dir = state.Dir;
+                if (nx >= 0 && grid[ny][nx] == '#')
+                {
+                    return (state, null);
+                }
+
+                if (nx < 0 || grid[ny][nx] == ' ')
+                {
+                    // Find next element on the opposite side if possible.
+                    // Can also be a block -> null.
+                    // For part 2, this will be dynamic.
+                    var dx = -1;
+                    var dy = 0;
+                    var sx = maxWidth - 1;
+                    var sy = state.Y;
+                    var sdir = dir;
+
+                    while (true)
+                    {
+                        if (grid[sy][sx] == '#')
+                        {
+                            return (state, null);
+                        }
+                        if (grid[sy][sx] == ' ')
+                        {
+                            sx += dx;
+                            sy += dy;
+                        }
+                        if (grid[sy][sx] == '.')
+                        {
+                            return (new MapState(X: sx, Y: sy, Dir: sdir), command with {Steps = command.Steps - 1});
+                        }
+                    }
+                }
+                return (new MapState(X: nx, Y: ny, Dir: dir), command with {Steps = command.Steps - 1});
             case East:
                 nx = (state.X + 1) % maxWidth;
                 ny = state.Y;
@@ -351,8 +423,6 @@ public class Day22
             default:
                 throw new ArgumentOutOfRangeException();
         }
-
-        return (state, null);
     }
 
     private static MapState ComputeStartingPosition(char[][] grid, MapState state)
