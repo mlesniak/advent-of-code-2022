@@ -62,14 +62,14 @@ class Grid
                         pos.X = pos.X - 1;
                         if (pos.X < 0)
                         {
-                            pos.X = Width;
+                            pos.X = Width - 1;
                         }
                         break;
                     case '^':
                         pos.Y = pos.Y - 1;
                         if (pos.Y < 0)
                         {
-                            pos.Y = Height;
+                            pos.Y = Height - 1;
                         }
                         break;
                     case 'v':
@@ -146,11 +146,14 @@ public class Day24
     {
         var grid = Grid.Load("24.txt");
 
+        var minute = 0;
         while (true)
         {
+            Console.WriteLine($"--- Minute {minute}");
             Console.WriteLine(grid);
             Console.WriteLine("Press any key");
             Console.ReadKey();
+            minute++;
             grid = grid.Step();
         }
     }
