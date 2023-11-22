@@ -218,60 +218,44 @@ public class Day22
         //                 break;
         //         }
         //     }
-        //     else
-        //     {
-        //         switch (dir)
-        //         {
-        //             case North:
-        //                 if (command.Direction == 'R')
-        //                 {
-        //                     dir = East;
-        //                 }
-        //                 else
-        //                 {
-        //                     dir = West;
-        //                 }
-        //                 break;
-        //             case East:
-        //                 if (command.Direction == 'R')
-        //                 {
-        //                     dir = South;
-        //                 }
-        //                 else
-        //                 {
-        //                     dir = North;
-        //                 }
-        //                 break;
-        //             case South:
-        //                 if (command.Direction == 'R')
-        //                 {
-        //                     dir = West;
-        //                 }
-        //                 else
-        //                 {
-        //                     dir = East;
-        //                 }
-        //                 break;
-        //             case West:
-        //                 if (command.Direction == 'R')
-        //                 {
-        //                     dir = North;
-        //                 }
-        //                 else
-        //                 {
-        //                     dir = South;
-        //                 }
-        //                 break;
-        //         }
-        //         Console.WriteLine($"New direction {dir}");
-        //     }
-        // }
-
     }
 
-    private static (MapState state, Command c) Compute(MapState state, Command p1)
+    private static (MapState, Command?) Compute(MapState state, Command command)
     {
-        // Compute next position and remaining steps.
+        if (command.Direction.HasValue)
+        {
+            var dir = command.Direction.Value;
+            switch (state.Dir)
+            {
+                case North:
+                    if (dir == 'R')
+                    {
+                        return (state with {Dir = East}, null);
+                    }
+                    return (state with {Dir = West}, null);
+                case East:
+                    if (dir == 'R')
+                    {
+                        return (state with {Dir = South}, null);
+                    }
+                    return (state with {Dir = North}, null);
+                case South:
+                    if (dir == 'R')
+                    {
+                        return (state with {Dir = West}, null);
+                    }
+                    return (state with {Dir = East}, null);
+                case West:
+                    if (dir == 'R')
+                    {
+                        return (state with {Dir = North}, null);
+                    }
+                    return (state with {Dir = South}, null);
+            }
+            Console.WriteLine($"New direction {dir}");
+        }
+
+
         return (state, null);
     }
 
