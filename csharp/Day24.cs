@@ -181,22 +181,40 @@ class Grid
             }
         }
 
+        Cache[0] = grid;
         return grid;
+    }
+
+    public static Dictionary<int, Grid> Cache = new();
+
+    public static Grid GetForMinute(int minute)
+    {
+        if (Cache.TryGetValue(minute, out Grid grid))
+        {
+            return grid;
+        }
+
+        var g = GetForMinute(minute - 1);
+        var step = g.Step();
+        Cache[minute] = step;
+        return step;
     }
 }
 
 class BlizzardState
 {
     public int Minute;
-    public Grid Grid;
+
+    // public Grid Grid;
     public Position Pos;
 
     public override string ToString()
     {
+        var grid = Grid.GetForMinute(Minute);
         var sb = new StringBuilder();
         sb.Append($"Minute={Minute}\n");
         sb.Append($"Pos={Pos}\n");
-        sb.Append(Grid.ToString(Pos));
+        sb.Append(grid.ToString(Pos));
         return sb.ToString();
     }
 
@@ -207,7 +225,7 @@ class BlizzardState
         // Since we are never doing anything directly with the 
         // reference, using the same for all states should be fine.
         // (and we do not have to create separate copies).
-        var nextGrid = Grid.Step();
+        var nextGrid = Grid.GetForMinute(Minute + 1);
 
         // (0,0) is wait.
         var dirs = new List<(int, int)>
@@ -222,39 +240,18 @@ class BlizzardState
         {
             var nx = Pos.X + dx;
             var ny = Pos.Y + dy;
-            if (nx <= 0 || nx >= Grid.Width || ny <= 0 || (ny >= Grid.Height && nx != Grid.Width - 1))
+            if (nx <= 0 || nx >= nextGrid.Width || ny <= 0 || (ny >= nextGrid.Height && nx != nextGrid.Width - 1))
             {
                 continue;
             }
             if (nextGrid.IsFree(nx, ny))
             {
-                res.Add(new BlizzardState() {Minute = Minute + 1, Grid = nextGrid, Pos = new Position(nx, ny)});
+                res.Add(new BlizzardState() {Minute = Minute + 1, Pos = new Position(nx, ny)});
             }
         }
 
         return res;
     }
-
-    protected bool Equals(BlizzardState other) => Grid.Equals(other.Grid) && Pos.Equals(other.Pos);
-
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj))
-        {
-            return false;
-        }
-        if (ReferenceEquals(this, obj))
-        {
-            return true;
-        }
-        if (obj.GetType() != this.GetType())
-        {
-            return false;
-        }
-        return Equals((BlizzardState)obj);
-    }
-
-    public override int GetHashCode() => HashCode.Combine(Grid, Pos);
 }
 
 public class Day24
@@ -263,9 +260,9 @@ public class Day24
     {
         var grid = Grid.Load("24.txt");
 
-        var seen = new HashSet<BlizzardState>();
+        // var seen = new HashSet<BlizzardState>();
         var queue = new Queue<BlizzardState>();
-        var root = new BlizzardState {Minute = 0, Grid = grid, Pos = new Position(1, 0)};
+        var root = new BlizzardState {Minute = 0, Pos = new Position(1, 0)};
         queue.Enqueue(root);
 
         // Console.WriteLine(grid.Width);
@@ -280,7 +277,7 @@ public class Day24
                 Console.WriteLine(cur.Minute);
                 max = cur.Minute;
             }
-            seen.Add(cur);
+            // seen.Add(cur);
             // Console.WriteLine($"\nLooking at\n{cur}");
 
             foreach (var nextState in cur.Nexts())
@@ -294,10 +291,10 @@ public class Day24
                 }
                 // Console.WriteLine($"  Adding\n{nextState}");
                 // Console.WriteLine(goal);
-                if (!seen.Contains(nextState))
-                {
-                    queue.Enqueue(nextState);
-                }
+                // if (!seen.Contains(nextState))
+                // {
+                queue.Enqueue(nextState);
+                // }
             }
             // Console.WriteLine("Press any key");
             // Console.ReadKey();
