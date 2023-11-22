@@ -31,6 +31,8 @@ record MapState(int X, int Y, Direction Dir)
         };
         return 1000 * (Y + 1) + 4 * (X + 1) + dirScore;
     }
+
+    public override string ToString() => $"Y={Y + 1}/X={X + 1} D={Dir}";
 }
 
 enum Direction
@@ -54,10 +56,11 @@ public class Day22
             Console.WriteLine($"\nExecuting {command} on {state}");
             var c = command;
 
-            (state, c) = Compute(state, c);
+            (state, c) = Compute(state, c, grid, maxWidth, maxHeight);
             while (c != null)
             {
-                (state, c) = Compute(state, c);
+                Console.WriteLine($"  Executing {c} on {state}");
+                (state, c) = Compute(state, c, grid, maxWidth, maxHeight);
             }
         }
 
@@ -220,41 +223,134 @@ public class Day22
         //     }
     }
 
-    private static (MapState, Command?) Compute(MapState state, Command command)
+    private static (MapState, Command?) Compute(MapState state, Command command, char[][] grid, int maxWidth,
+        int maxHeight)
     {
+        // Consider direction.
         if (command.Direction.HasValue)
         {
-            var dir = command.Direction.Value;
+            var cdir = command.Direction.Value;
             switch (state.Dir)
             {
                 case North:
-                    if (dir == 'R')
+                    if (cdir == 'R')
                     {
                         return (state with {Dir = East}, null);
                     }
                     return (state with {Dir = West}, null);
                 case East:
-                    if (dir == 'R')
+                    if (cdir == 'R')
                     {
                         return (state with {Dir = South}, null);
                     }
                     return (state with {Dir = North}, null);
                 case South:
-                    if (dir == 'R')
+                    if (cdir == 'R')
                     {
                         return (state with {Dir = West}, null);
                     }
                     return (state with {Dir = East}, null);
                 case West:
-                    if (dir == 'R')
+                    if (cdir == 'R')
                     {
                         return (state with {Dir = North}, null);
                     }
                     return (state with {Dir = South}, null);
             }
-            Console.WriteLine($"New direction {dir}");
         }
 
+        if (command.Steps == 0)
+        {
+            return (state, null);
+        }
+
+        int nx;
+        int ny;
+        Direction dir;
+        switch (state.Dir)
+        {
+            case North:
+                break;
+            case South:
+                nx = state.X;
+                ny = (state.Y + 1) % maxHeight;
+                dir = state.Dir;
+                if (grid[ny][nx] == '#')
+                {
+                    return (state, null);
+                }
+
+                if (grid[ny][nx] == ' ')
+                {
+                    // Find next element on the opposite side if possible.
+                    // Can also be a block -> null.
+                    var dx = 0;
+                    var dy = 1;
+                    var sx = state.X;
+                    var sy = 0;
+                    var sdir = dir;
+
+                    while (true)
+                    {
+                        if (grid[sy][sx] == '#')
+                        {
+                            return (state, null);
+                        }
+                        if (grid[sy][sx] == ' ')
+                        {
+                            sx += dx;
+                            sy += dy;
+                        }
+                        if (grid[sy][sx] == '.')
+                        {
+                            return (new MapState(X: sx, Y: sy, Dir: sdir), command with {Steps = command.Steps - 1});
+                        }
+                    }
+                }
+                return (new MapState(X: nx, Y: ny, Dir: dir), command with {Steps = command.Steps - 1});
+            case West:
+                break;
+            case East:
+                nx = (state.X + 1) % maxWidth;
+                ny = state.Y;
+                dir = state.Dir;
+                if (grid[ny][nx] == '#')
+                {
+                    return (state, null);
+                }
+
+                if (grid[ny][nx] == ' ')
+                {
+                    // Find next element on the opposite side if possible.
+                    // Can also be a block -> null.
+                    // For part 2, this will be dynamic.
+                    var dx = 1;
+                    var dy = 0;
+                    var sx = 0;
+                    var sy = state.Y;
+                    var sdir = dir;
+
+                    while (true)
+                    {
+                        if (grid[sy][sx] == '#')
+                        {
+                            return (state, null);
+                        }
+                        if (grid[sy][sx] == ' ')
+                        {
+                            sx += dx;
+                            sy += dy;
+                        }
+                        if (grid[sy][sx] == '.')
+                        {
+                            return (new MapState(X: sx, Y: sy, Dir: sdir), command with {Steps = command.Steps - 1});
+                        }
+                    }
+                }
+                return (new MapState(X: nx, Y: ny, Dir: dir), command with {Steps = command.Steps - 1});
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
 
         return (state, null);
     }
