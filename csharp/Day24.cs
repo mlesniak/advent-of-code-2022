@@ -182,6 +182,7 @@ class Grid
         }
 
         Cache[0] = grid;
+        GetForMinute(1000);
         return grid;
     }
 
@@ -204,8 +205,6 @@ class Grid
 class BlizzardState
 {
     public int Minute;
-
-    // public Grid Grid;
     public Position Pos;
 
     public override string ToString()
@@ -252,6 +251,26 @@ class BlizzardState
 
         return res;
     }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj))
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+        if (obj.GetType() != this.GetType())
+        {
+            return false;
+        }
+        BlizzardState other = (BlizzardState)obj;
+        return Minute == other.Minute && Pos.Equals(other.Pos);
+    }
+
+    public override int GetHashCode() => HashCode.Combine(Minute, Pos);
 }
 
 public class Day24
@@ -260,24 +279,35 @@ public class Day24
     {
         var grid = Grid.Load("24.txt");
 
-        // var seen = new HashSet<BlizzardState>();
+        var visited = new HashSet<BlizzardState>();
         var queue = new Queue<BlizzardState>();
         var root = new BlizzardState {Minute = 0, Pos = new Position(1, 0)};
         queue.Enqueue(root);
 
-        // Console.WriteLine(grid.Width);
-        // Console.WriteLine(grid.Height);
         var goal = new Position(grid.Width - 2, grid.Height - 1);
         var max = 0;
+        var i = 0;
         while (queue.Any())
         {
+            i++;
+            // if (i % 10_000 == 0)
+            // {
+            //     Console.WriteLine($"i={i} queue={queue.Count}");
+            // }
+            
             var cur = queue.Dequeue();
+            if (visited.Contains(cur))
+            {
+                // Console.WriteLine("Visited already");
+                continue;
+            }
             if (cur.Minute > max)
             {
                 Console.WriteLine(cur.Minute);
                 max = cur.Minute;
+                Console.WriteLine(cur);
             }
-            // seen.Add(cur);
+            visited.Add(cur);
             // Console.WriteLine($"\nLooking at\n{cur}");
 
             foreach (var nextState in cur.Nexts())
@@ -285,16 +315,21 @@ public class Day24
                 if (nextState.Pos.Equals(goal))
                 {
                     // Console.WriteLine("Found");
+                    Console.WriteLine(nextState);
                     Console.WriteLine(nextState.Minute);
                     queue.Clear();
                     break;
                 }
                 // Console.WriteLine($"  Adding\n{nextState}");
                 // Console.WriteLine(goal);
-                // if (!seen.Contains(nextState))
-                // {
-                queue.Enqueue(nextState);
-                // }
+                if (!visited.Contains(nextState))
+                {
+                    queue.Enqueue(nextState);
+                }
+                else
+                {
+                    // Console.WriteLine("Ignoring future enqueue");
+                }
             }
             // Console.WriteLine("Press any key");
             // Console.ReadKey();
