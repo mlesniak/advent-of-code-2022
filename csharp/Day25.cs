@@ -7,7 +7,7 @@ public class Day25
     public static void Run()
     {
         string[] lines = File.ReadAllLines("25.txt");
-        int sum = 0;
+        long sum = 0;
         for (var i = 0; i < lines.Length; i++)
         {
             sum += From(lines[i]);
@@ -16,7 +16,7 @@ public class Day25
         Console.WriteLine(To(sum));
     }
 
-    public static string To(int n)
+    public static string To(long n)
     {
         var sb = new StringBuilder();
 
@@ -45,10 +45,10 @@ public class Day25
         return sb.ToString();
     }
 
-    public static int From(string snafu)
+    public static long From(string snafu)
     {
-        int factor = 1;
-        int sum = 0;
+        long factor = 1;
+        long sum = 0;
 
         for (int i = snafu.Length - 1; i >= 0; i--)
         {
