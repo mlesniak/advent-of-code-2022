@@ -239,7 +239,8 @@ class BlizzardState
         {
             var nx = Pos.X + dx;
             var ny = Pos.Y + dy;
-            if (nx <= 0 || nx >= nextGrid.Width || ny <= 0 || (ny >= nextGrid.Height && nx != nextGrid.Width - 1))
+            // Out of bounds?
+            if (nx < 0 || nx >= nextGrid.Width || ny < 0 || ny >= nextGrid.Height)
             {
                 continue;
             }
@@ -284,6 +285,11 @@ public class Day24
         var root = new BlizzardState {Minute = 0, Pos = new Position(1, 0)};
         queue.Enqueue(root);
 
+        // 0: goal is at the end
+        // 1: goal is at the start
+        // 2: goal is at the end and we abort once found.
+        var state = 0;
+
         var goal = new Position(grid.Width - 2, grid.Height - 1);
         var max = 0;
         var i = 0;
@@ -294,7 +300,7 @@ public class Day24
             // {
             //     Console.WriteLine($"i={i} queue={queue.Count}");
             // }
-            
+
             var cur = queue.Dequeue();
             if (visited.Contains(cur))
             {
@@ -310,15 +316,47 @@ public class Day24
             visited.Add(cur);
             // Console.WriteLine($"\nLooking at\n{cur}");
 
+            var restart = false;
             foreach (var nextState in cur.Nexts())
             {
+                if (restart)
+                {
+                    continue;
+                }
                 if (nextState.Pos.Equals(goal))
                 {
+                    switch (state)
+                    {
+                        case 0:
+                            Console.WriteLine("found");
+                            Console.WriteLine(nextState);
+                            // Console.ReadKey();
+
+                            goal = new Position(1, 0);
+                            queue.Clear();
+                            queue.Enqueue(nextState);
+
+                            state++;
+                            break;
+                        case 1:
+                            Console.WriteLine("found");
+                            Console.WriteLine(nextState);
+                            Console.WriteLine(nextState.Minute);
+
+                            goal = new Position(grid.Width - 2, grid.Height - 1);
+                            queue.Clear();
+                            queue.Enqueue(nextState);
+                            state++;
+                            break;
+                        case 2:
+                            Console.WriteLine(nextState);
+                            Console.WriteLine(nextState.Minute);
+                            queue.Clear();
+                            Environment.Exit(0); // 🙈
+                            break;
+                    }
+
                     // Console.WriteLine("Found");
-                    Console.WriteLine(nextState);
-                    Console.WriteLine(nextState.Minute);
-                    queue.Clear();
-                    break;
                 }
                 // Console.WriteLine($"  Adding\n{nextState}");
                 // Console.WriteLine(goal);
